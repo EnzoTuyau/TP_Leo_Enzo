@@ -12,6 +12,12 @@ public class MainJavaFX extends Application {
     @Override
     public void start(Stage stage) throws IOException {
 
+
+        //Bonjour
+
+
+
+
         Pane pane = new Pane();
         Scene scene = new Scene(pane, 320, 240);
         stage.setTitle("Hello!");
