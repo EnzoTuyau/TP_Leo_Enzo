@@ -1,6 +1,7 @@
 module org.example.tp_leo_enzo {
     requires javafx.controls;
     requires javafx.fxml;
+    requires javafx.graphics;
 
 
     opens org.example.tp_leo_enzo to javafx.fxml;
