@@ -13,6 +13,7 @@ import org.example.tp_leo_enzo.Flocon;
 import org.example.tp_leo_enzo.FloconOscillant;
 import org.example.tp_leo_enzo.Grele;
 
+import java.util.ArrayList;
 import java.util.Random;
 
 public class MainJavaFX extends Application {
@@ -29,6 +30,13 @@ public class MainJavaFX extends Application {
         var canvas = new Canvas(WIDTH, HEIGHT);
         root.getChildren().add(canvas);
         var context = canvas.getGraphicsContext2D();
+
+        ArrayList<Integer> adresses = new ArrayList<>();
+        adresses.add(132);
+        adresses.add(176);
+        adresses.add(67);
+        Camelot camelot = new Camelot(adresses);
+
 
         Flocon[] flocons = new Flocon[1000];
 
@@ -59,6 +67,13 @@ public class MainJavaFX extends Application {
                 // Arrière-plan
                 context.setFill(Color.gray(0.2));
                 context.fillRect(0, 0, WIDTH, HEIGHT);
+
+                //Ajouté
+                //boolean gauche = Input.isKeyPressed(KeyCode.LEFT);
+                //boolean droite = Input.isKeyPressed(KeyCode.RIGHT);
+                //camelot.updatePhysique(gauche,droite);
+                camelot.draw(context);
+                camelot.changerImg();
 
                 for (var flocon : flocons)
                     flocon.draw(context);
