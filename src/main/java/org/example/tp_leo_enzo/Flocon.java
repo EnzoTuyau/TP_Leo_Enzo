@@ -22,7 +22,7 @@ public class Flocon {
     }
 
     public Flocon(double w, double h, Color color) {
-        this.position = new Point2D(Math.random() * ca.qc.bdeb.sim.animation.MainJavaFX.WIDTH, Math.random() * ca.qc.bdeb.sim.animation.MainJavaFX.HEIGHT);
+        this.position = new Point2D(Math.random() * MainJavaFX.WIDTH, Math.random() * MainJavaFX.HEIGHT);
         this.taille = new Point2D(w, h);
         this.color = color;
     }
@@ -41,7 +41,7 @@ public class Flocon {
     }
 
     protected boolean horsDeLEcran() {
-        return position.getY() + taille.getY() > ca.qc.bdeb.sim.animation.MainJavaFX.HEIGHT;
+        return position.getY() + taille.getY() > MainJavaFX.HEIGHT;
     }
 
     protected void updatePhysique(double deltaTemps) {
@@ -51,7 +51,7 @@ public class Flocon {
 
     public void recommencer() {
         // Déplace les flocons vers le haut
-        position = new Point2D(Math.random() * ca.qc.bdeb.sim.animation.MainJavaFX.WIDTH, -Math.random() * 30);
+        position = new Point2D(Math.random() * MainJavaFX.WIDTH, -Math.random() * 30);
         velocite = VELOCITE_INITIALE.add(new Point2D(Math.random() * 50 - 25, 0));
     }
 
