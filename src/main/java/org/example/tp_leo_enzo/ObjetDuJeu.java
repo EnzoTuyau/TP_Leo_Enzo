@@ -1,0 +1,48 @@
+package org.example.tp_leo_enzo;
+
+import javafx.geometry.Point2D;
+import javafx.scene.canvas.GraphicsContext;
+
+public abstract class ObjetDuJeu {
+    protected Point2D pos;
+    protected Point2D velocite;
+    protected Point2D acc;
+    protected Point2D taille;
+
+
+    protected abstract void draw(GraphicsContext context);
+
+    protected void update(double deltaTemps) {
+        updatePhysique(deltaTemps);
+    }
+
+    protected void updatePhysique(double deltaTemps) {
+        if (getDroite() < 0) { //boucle if pour vérifier si les objets sortent de la caméra
+
+        }
+        velocite = velocite.add(acc.multiply(deltaTemps));
+        pos = pos.add(velocite.multiply(deltaTemps));
+
+    }
+
+    public double getHaut() {
+        return pos.getY();
+    }
+
+    public double getBas() {
+        return pos.getY() + taille.getY();
+    }
+
+    public double getGauche() {
+        return pos.getX();
+    }
+
+    public double getDroite() {
+        return pos.getX() + taille.getX();
+    }
+
+    public Point2D getCentre() {
+        return pos.add(taille.multiply(1 / 2.0));
+    }
+
+}
