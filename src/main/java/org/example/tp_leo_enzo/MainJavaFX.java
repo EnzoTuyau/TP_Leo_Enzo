@@ -12,6 +12,7 @@ import javafx.stage.Stage;
 
 import java.util.Random;
 
+
 public class MainJavaFX extends Application {
     public static final double WIDTH = 640, HEIGHT = 480;
 
