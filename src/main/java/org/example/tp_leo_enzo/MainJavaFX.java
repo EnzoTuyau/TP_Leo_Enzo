@@ -60,14 +60,14 @@ public class MainJavaFX extends Application {
             @Override
             public void handle(long now) {
 
-
                 double deltaTemps = (now - lastTime) * 1e-9;
-                boolean gauche = Input.isKeyPressed(KeyCode.A);
-                boolean droite = Input.isKeyPressed(KeyCode.D);
+
 
                 // -- Update --
                 for (var flocon : flocons)
                     flocon.update(deltaTemps);
+
+
 
                 // -- Dessin --
                 // Arrière-plan
@@ -76,16 +76,25 @@ public class MainJavaFX extends Application {
 
                 //avancer camelot
 
-                camelot.update(gauche, droite, deltaTemps);
 
+                boolean gauche = Input.isKeyPressed(KeyCode.LEFT);
+                boolean droite = Input.isKeyPressed(KeyCode.RIGHT);
+
+                if(gauche||droite){
+                    context.setFill(Color.RED);
+                    context.fillRect(0,0,50,50);
+                }
+                camelot.update(gauche, droite, deltaTemps);
                 camelot.draw(context, camera);
                 camelot.changerImg();
 
                 for (var flocon : flocons)
                     flocon.draw(context);
 
+
+
                 lastTime = now;
-                camera.setVelocite(new Point2D(camelot.getVelocite().getX(), 0));
+//                camera.setVelocite(new Point2D(camelot.getVelocite().getX(), 0));
             }
         };
         timer.start();
