@@ -6,6 +6,19 @@ public class Camera {
     private Point2D positionCamera;
     private Point2D velocite;
 
+    public Point2D getVelocite() {
+        return velocite;
+    }
+
+    public void setVelocite(Point2D velocite) {
+        this.velocite = velocite;
+    }
+
+    public Camera(){
+        positionCamera= new Point2D(0,0);
+        velocite= new Point2D(0,0);
+    }
+
     public Point2D coordoEcran(Point2D positionMonde) {
         return positionMonde.subtract(positionCamera);
     }
@@ -15,6 +28,8 @@ public class Camera {
                 positionCamera.add(velocite.multiply(deltaTemps));
     }
 
+
+
     public Point2D getPositionCamera() {
         return positionCamera;
     }
@@ -22,4 +37,5 @@ public class Camera {
     public void setPositionCamera(Point2D positionCamera) {
         this.positionCamera = positionCamera;
     }
+
 }

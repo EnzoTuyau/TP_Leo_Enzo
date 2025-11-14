@@ -3,8 +3,10 @@ package org.example.tp_leo_enzo;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.geometry.Point2D;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
@@ -25,6 +27,7 @@ public class MainJavaFX extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
+        var camera = new Camera();
         var root = new Pane();
         var scene = new Scene(root, WIDTH, HEIGHT);
         var canvas = new Canvas(WIDTH, HEIGHT);
@@ -57,7 +60,10 @@ public class MainJavaFX extends Application {
             @Override
             public void handle(long now) {
 
+
                 double deltaTemps = (now - lastTime) * 1e-9;
+                boolean gauche = Input.isKeyPressed(KeyCode.A);
+                boolean droite = Input.isKeyPressed(KeyCode.D);
 
                 // -- Update --
                 for (var flocon : flocons)
@@ -68,25 +74,30 @@ public class MainJavaFX extends Application {
                 context.setFill(Color.gray(0.2));
                 context.fillRect(0, 0, WIDTH, HEIGHT);
 
-                //Ajouté
-                //boolean gauche = Input.isKeyPressed(KeyCode.LEFT);
-                //boolean droite = Input.isKeyPressed(KeyCode.RIGHT);
-                //camelot.updatePhysique(gauche,droite);
-                camelot.draw(context);
+                //avancer camelot
+
+                camelot.update(gauche, droite, deltaTemps);
+
+                camelot.draw(context, camera);
                 camelot.changerImg();
 
                 for (var flocon : flocons)
                     flocon.draw(context);
 
                 lastTime = now;
+                camera.setVelocite(new Point2D(camelot.getVelocite().getX(), 0));
             }
         };
         timer.start();
+
+
 
         primaryStage.setScene(scene);
         primaryStage.setTitle("Animations!");
         primaryStage.show();
     }
+
+
 
 
 
