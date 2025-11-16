@@ -86,7 +86,7 @@ public class Camelot extends ObjetDuJeu {
         if (gauche) {
             if (velocite.getX()>200){
                 acceleration = new Point2D(-300, acceleration.getY());
-            }else if (velocite.getX()==200){
+            }else if (velocite.getX()<=200){
                 setVelocite(new Point2D(200, velocite.getY()));
             }
         } else if (droite) {
