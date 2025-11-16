@@ -14,6 +14,7 @@ public class Camelot extends ObjetDuJeu {
     private Point2D pos;
     private Point2D velocite;
     private Point2D acceleration;
+    private double tempsDepuisDernierChangement=0;
 
     public Point2D getPos() {
         return pos;
@@ -57,11 +58,20 @@ public class Camelot extends ObjetDuJeu {
         return this.argent;
     }
 
-    public void changerImg() {
-        if (this.imgCamelot == 1) {
-            this.imgCamelot = 2;
-        } else {
-            this.imgCamelot = 1;
+    public void changerImg(double deltaTemps) {
+        // Durée entre deux changements d'image (en secondes)
+        double delai = 0.15;
+
+        tempsDepuisDernierChangement += deltaTemps;
+
+        if (tempsDepuisDernierChangement >= delai) {
+            // alterner l'image
+            if (imgCamelot == 1)
+                imgCamelot = 2;
+            else
+                imgCamelot = 1;
+
+            tempsDepuisDernierChangement = 0; // reset du compteur
         }
     }
 

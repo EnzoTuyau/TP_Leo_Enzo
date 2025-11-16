@@ -94,7 +94,7 @@ public class MainJavaFX extends Application {
 
                 camelot.update(gauche, droite, sauter, deltaTemps);
                 camelot.draw(context, camera);
-                camelot.changerImg();
+                camelot.changerImg(deltaTemps);
 
 //                for (var flocon : flocons)
 //                    flocon.draw(context);
