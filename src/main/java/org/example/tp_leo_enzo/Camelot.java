@@ -77,23 +77,23 @@ public class Camelot extends ObjetDuJeu {
     }
 
     public void updatePhysique(boolean gauche, boolean droite, boolean sauter, double deltaTemps) {
-        // Empêche d'aller plus vite que +300 ou -300
+        // Empêche d'aller plus vite que +600 pixels/s ou -600 pixels/s
         velocite = new Point2D(
                 Math.clamp(velocite.getX(), -600, +600),
                 velocite.getY()
         );
-
-        if (gauche) {
+        // boucle else if pour vérifier quelles touches sont appuyées
+        if (gauche) { //boucle else if ralentir le camelot sans qu'il recule
             if (velocite.getX()>200){
                 acceleration = new Point2D(-300, acceleration.getY());
             }else if (velocite.getX()<=200){
                 setVelocite(new Point2D(200, 0));
             }
-        } else if (droite) {
+        } else if (droite) { //boucle else if pour accélérer vers la droite
             acceleration = new Point2D(+300, acceleration.getY());
-        } else if (Math.abs(velocite.getX()) > 400) {
-            int signe = velocite.getX() > 0 ? -1 : +1; // force opposée
-            acceleration = new Point2D(signe * 300, acceleration.getY());
+//        } else if (Math.abs(velocite.getX()) > 400) {
+//            int signe = velocite.getX() > 0 ? -1 : +1; // force opposée
+//            acceleration = new Point2D(signe * 300, acceleration.getY());
         } else if (sauter){
             velocite = new Point2D(velocite.getX(), -500);
             acceleration = new Point2D(velocite.getX(), 1500);
