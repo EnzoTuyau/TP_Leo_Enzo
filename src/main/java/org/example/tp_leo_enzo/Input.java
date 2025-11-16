@@ -8,9 +8,6 @@ import java.util.Set;
 
 public class Input {
 
-    private static final HashSet<KeyCode> keys = new HashSet<>();
-
-
         // Ensemble des touches actuellement appuyées
         private static final Set<KeyCode> touches = new HashSet<>();
 

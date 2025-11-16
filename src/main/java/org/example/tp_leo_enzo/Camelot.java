@@ -3,6 +3,7 @@ package org.example.tp_leo_enzo;
 import javafx.geometry.Point2D;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
+import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
 
@@ -32,31 +33,33 @@ public class Camelot extends ObjetDuJeu {
         this.velocite = velocite;
     }
 
-    public Camelot(ArrayList<Integer> adresses) {
-        this.journaux = 24;
-        this.argent = 0;
-        this.adresses = adresses;
-        this.imgCamelot = 1;
-        this.pos = new Point2D(100, 300);
-        this.velocite = new Point2D(0, 0);
-        this.acceleration = new Point2D(0, 0);
+    public int getJournaux() {
+        return this.argent;
+    }
+
+    public int getArgent() {
+        return this.argent;
     }
 
     public void ajouter12Journaux() {
         this.journaux = this.journaux + 12;
     }
 
-    public int getJournaux() {
-        return this.argent;
-    }
-
     public void ajouterArgent(int argent) {
         this.argent = this.argent + argent;
     }
 
-    public int getArgent() {
-        return this.argent;
+    public Camelot(ArrayList<Integer> adresses) {
+        this.journaux = 24;
+        this.argent = 0;
+        this.adresses = adresses;
+        this.imgCamelot = 1;
+        this.pos = new Point2D(100, 580-144); //144 est la hauteur du camelot
+        this.velocite = new Point2D(0, 0);
+        this.acceleration = new Point2D(0, 0);
     }
+
+
 
     public void changerImg(double deltaTemps) {
         // Durée entre deux changements d'image (en secondes)
@@ -107,10 +110,10 @@ public class Camelot extends ObjetDuJeu {
         } else if (sauter){
             velocite = new Point2D(velocite.getX(), -500);
             acceleration = new Point2D(velocite.getX(), 1500);
-        } else if (pos.getY()>300){
+        } else if (pos.getY()>580-144){ //144 est la hauteur du camelot
             setVelocite(new Point2D(velocite.getX(), 0));
             acceleration= new Point2D(velocite.getX(), 0);
-            setPos(new Point2D(pos.getX(), 300));
+            setPos(new Point2D(pos.getX(), 580-144)); //144 est la hauteur du camelot
         }else {
             setVelocite(new Point2D(400, velocite.getY()));
         }
@@ -120,12 +123,14 @@ public class Camelot extends ObjetDuJeu {
 
     }
 
-    @Override
+
     protected void draw(GraphicsContext context, Camera camera) {
 
         var coordoEcran = camera.coordoEcran(pos);
         context.drawImage(getImgCamelot(), coordoEcran.getX(), coordoEcran.getY());
+
     }
+
 
 
 }

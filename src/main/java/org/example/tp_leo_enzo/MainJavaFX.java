@@ -5,15 +5,19 @@ import javafx.application.Application;
 import javafx.geometry.Point2D;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
-import javafx.scene.layout.Pane;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 import java.util.ArrayList;
 
 public class MainJavaFX extends Application {
-    public static final double WIDTH = 640, HEIGHT = 480;
+    public static final double WIDTH = 900, HEIGHT = 580;
+    private int debug = 0;
 
     public static void main(String[] args) {
         launch(args);
@@ -35,18 +39,6 @@ public class MainJavaFX extends Application {
         Camelot camelot = new Camelot(adresses);
 
 
-//        Flocon[] flocons = new Flocon[1000];
-//
-//        for (int i = 0; i < flocons.length; i++) {
-//            Random rnd = new Random();
-//            int choix = rnd.nextInt(3);
-//
-//            switch (choix) {
-//                case 0 -> flocons[i] = new Flocon();
-//                case 1 -> flocons[i] = new Grele();
-//                case 2 -> flocons[i] = new FloconOscillant();
-//            }
-//        }
 
         var timer = new AnimationTimer() {
         long dernierTemps = System.nanoTime();
@@ -55,34 +47,39 @@ public class MainJavaFX extends Application {
             public void handle(long maintenant) {
                 double deltaTemps = (maintenant - dernierTemps) * 1e-9;
                 dernierTemps = maintenant;
-                context.setFill(Color.gray(0.2));
-                context.fillRect(0, 0, WIDTH, HEIGHT);
-
-                // -- Update --
-//                for (var flocon : flocons)
-//                    flocon.update(deltaTemps);
-
-
                 // Arrière-plan
+                context.setFill(Color.BLACK);
+                context.fillRect(0, 0, WIDTH, HEIGHT);
+                Image fond = new Image("brique.png");
+                ImageView fondbrique = new ImageView(fond);
 
+
+
+                //modes de débogage différent
+                if (debug==1) {
+                    context.setFill(Color.YELLOW);
+                    context.fillRect(camera.coordoEcran(camelot.getPos()).getX(), 0, 4,600);
+                }
 
                 //avancer camelot
 
                 //permets de savoir quand on appuie et quand on lâche une touche
-                scene.setOnKeyPressed(event -> Input.keyPressed(event.getCode()));
+                scene.setOnKeyPressed(event -> choixDebogage(event));
                 scene.setOnKeyReleased(event -> Input.keyReleased(event.getCode()));
                 boolean gauche= false;
                 boolean droite= false;
                 //boucle if pour accélérer uniquement si on est au sol
-                if (camelot.getPos().getY()==300) {
+                if (camelot.getPos().getY()==580-144) { //144 est la hauteur du camelot
                     gauche = Input.isKeyPressed(KeyCode.LEFT);
                     droite = Input.isKeyPressed(KeyCode.RIGHT);
                 }
                     boolean sauter = false;
                 //boucle if pour ne pas sauter dans les aires
-                if (camelot.getPos().getY()==300) {
+                if (camelot.getPos().getY()==580-144) { //144 est la hauteur du camelot
                     sauter = Input.isKeyPressed(KeyCode.UP);
                 }
+
+
 
 
 
@@ -96,11 +93,13 @@ public class MainJavaFX extends Application {
                 camelot.draw(context, camera);
                 camelot.changerImg(deltaTemps);
 
-//                for (var flocon : flocons)
-//                    flocon.draw(context);
 
 
                 camera.setVelocite(new Point2D(camelot.getVelocite().getX(), 0));
+                camera.update(deltaTemps);
+
+
+
             }
         };
         timer.start();
@@ -110,6 +109,44 @@ public class MainJavaFX extends Application {
         primaryStage.setScene(scene);
         primaryStage.setTitle("Animations!");
         primaryStage.show();
+    }
+
+
+    public void choixDebogage(KeyEvent KeyEvent){
+        switch (KeyEvent.getCode()) {
+            case D:
+                if (debug==1){
+                    debug=0;
+                }else {
+                    debug=1;
+                }
+                break;
+            case Q:
+                if (debug==2){
+                    debug=0;
+                }else {
+                    debug=2;
+                }
+                break;
+            case K:
+
+                if (debug==3){
+                    debug=0;
+                }else {
+                    debug=3;
+                }
+                break;
+            case L:
+                if (debug==4){
+                    debug=0;
+                }else {
+                    debug=4;;
+                }
+                break;
+            default:
+                Input.keyPressed(KeyEvent.getCode());
+                break;
+        }
     }
 
 
