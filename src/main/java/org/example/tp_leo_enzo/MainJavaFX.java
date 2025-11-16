@@ -53,6 +53,11 @@ public class MainJavaFX extends Application {
                 Image fond = new Image("brique.png");
                 ImageView fondbrique = new ImageView(fond);
 
+                camera.setVelocite(new Point2D(camelot.getVelocite().getX(), 0));
+                camera.update(deltaTemps);
+
+
+
 
 
                 //modes de débogage différent
@@ -95,8 +100,8 @@ public class MainJavaFX extends Application {
 
 
 
-                camera.setVelocite(new Point2D(camelot.getVelocite().getX(), 0));
-                camera.update(deltaTemps);
+
+
 
 
 
