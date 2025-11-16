@@ -71,9 +71,19 @@ public class MainJavaFX extends Application {
                 //permets de savoir quand on appuie et quand on lâche une touche
                 scene.setOnKeyPressed(event -> Input.keyPressed(event.getCode()));
                 scene.setOnKeyReleased(event -> Input.keyReleased(event.getCode()));
-                boolean gauche = Input.isKeyPressed(KeyCode.LEFT);
-                boolean droite = Input.isKeyPressed(KeyCode.RIGHT);
-                boolean sauter = Input.isKeyPressed(KeyCode.UP);
+                boolean gauche= false;
+                boolean droite= false;
+                //boucle if pour accélérer uniquement si on est au sol
+                if (camelot.getPos().getY()==300) {
+                    gauche = Input.isKeyPressed(KeyCode.LEFT);
+                    droite = Input.isKeyPressed(KeyCode.RIGHT);
+                }
+                    boolean sauter = false;
+                //boucle if pour ne pas sauter dans les aires
+                if (camelot.getPos().getY()==300) {
+                    sauter = Input.isKeyPressed(KeyCode.UP);
+                }
+
 
 
                 //a supprimer test pour verifier si detecte une touche
@@ -81,6 +91,7 @@ public class MainJavaFX extends Application {
                     context.setFill(Color.RED);
                     context.fillRect(0,0,50,50);
                 }
+
                 camelot.update(gauche, droite, sauter, deltaTemps);
                 camelot.draw(context, camera);
                 camelot.changerImg();

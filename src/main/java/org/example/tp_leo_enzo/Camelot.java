@@ -87,7 +87,7 @@ public class Camelot extends ObjetDuJeu {
             if (velocite.getX()>200){
                 acceleration = new Point2D(-300, acceleration.getY());
             }else if (velocite.getX()<=200){
-                setVelocite(new Point2D(200, velocite.getY()));
+                setVelocite(new Point2D(200, 0));
             }
         } else if (droite) {
             acceleration = new Point2D(+300, acceleration.getY());
@@ -96,10 +96,15 @@ public class Camelot extends ObjetDuJeu {
             acceleration = new Point2D(signe * 300, acceleration.getY());
         } else if (sauter){
             velocite = new Point2D(velocite.getX(), -500);
-            acceleration = new Point2D(0, acceleration.getY());
-        } else {
+            acceleration = new Point2D(velocite.getX(), 1500);
+        } else if (pos.getY()>300){
+            setVelocite(new Point2D(velocite.getX(), 0));
+            acceleration= new Point2D(velocite.getX(), 0);
+            setPos(new Point2D(pos.getX(), 300));
+        }else {
             setVelocite(new Point2D(400, velocite.getY()));
         }
+
         pos = pos.add(velocite.multiply(deltaTemps)); //X=X0+VxΔt
         velocite = velocite.add(acceleration.multiply(deltaTemps)); //V=V0+AxΔt
 
