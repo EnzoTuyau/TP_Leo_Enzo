@@ -7,21 +7,36 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class Input {
-    // Ensemble des touches sur lesquelles on appuie en ce moment
-    private static Set<KeyCode> touches = new HashSet<>();
 
-    // personnage.update() va demander si certaines touches sont
-    // appuyées ou non
-    public static boolean isKeyPressed(KeyCode code) {
-        return touches.contains(code);
-    }
+    private static final HashSet<KeyCode> keys = new HashSet<>();
 
-    // Dans le Main, on va écouter les événements sur la scène
-    // et modifier l'état quand les touches changent
-    public static void setKeyPressed(KeyCode code, boolean appuie) {
-        if(appuie)
+
+        // Ensemble des touches actuellement appuyées
+        private static final Set<KeyCode> touches = new HashSet<>();
+
+        public static void keyPressed(KeyCode code) {
             touches.add(code);
-        else
+        }
+
+        public static void keyReleased(KeyCode code) {
             touches.remove(code);
-    }
+        }
+
+        public static boolean isKeyPressed(KeyCode code) {
+            return touches.contains(code);
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }

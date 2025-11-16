@@ -71,24 +71,34 @@ public class Camelot extends ObjetDuJeu {
         }
         return new Image("camelot2.png");
     }
-    public void update(boolean gauche, boolean droite, double deltatemps){
-        updatePhysique(gauche, droite, deltatemps);
+
+    public void update(boolean gauche, boolean droite, boolean sauter, double deltatemps) {
+        updatePhysique(gauche, droite, sauter, deltatemps);
     }
 
-    public void updatePhysique(boolean gauche, boolean droite, double deltaTemps) {
-
-
+    public void updatePhysique(boolean gauche, boolean droite, boolean sauter, double deltaTemps) {
+        // Empêche d'aller plus vite que +300 ou -300
+        velocite = new Point2D(
+                Math.clamp(velocite.getX(), -600, +600),
+                velocite.getY()
+        );
 
         if (gauche) {
-            acceleration = new Point2D(-1000, acceleration.getY());
+            if (velocite.getX()>200){
+                acceleration = new Point2D(-300, acceleration.getY());
+            }else if (velocite.getX()==200){
+                setVelocite(new Point2D(200, velocite.getY()));
+            }
         } else if (droite) {
-            acceleration = new Point2D(+1000, acceleration.getY());
-        } else if (Math.abs(velocite.getX()) > 0.5) {
-            int signe = velocite.getX() > 0 ? -1 : +1;
-            acceleration = new Point2D(signe * 500, acceleration.getY());
-        } else {
-            velocite = new Point2D(0, velocite.getY());
+            acceleration = new Point2D(+300, acceleration.getY());
+        } else if (Math.abs(velocite.getX()) > 400) {
+            int signe = velocite.getX() > 0 ? -1 : +1; // force opposée
+            acceleration = new Point2D(signe * 300, acceleration.getY());
+        } else if (sauter){
+            velocite = new Point2D(velocite.getX(), -500);
             acceleration = new Point2D(0, acceleration.getY());
+        } else {
+            setVelocite(new Point2D(400, velocite.getY()));
         }
         pos = pos.add(velocite.multiply(deltaTemps)); //X=X0+VxΔt
         velocite = velocite.add(acceleration.multiply(deltaTemps)); //V=V0+AxΔt

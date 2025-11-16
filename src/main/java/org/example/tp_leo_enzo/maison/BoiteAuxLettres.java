@@ -5,6 +5,9 @@ import org.example.tp_leo_enzo.Camera;
 import org.example.tp_leo_enzo.ObjetDuJeu;
 
 public class BoiteAuxLettres extends ObjetDuJeu {
+
+    private int adresse;
+
     @Override
     protected void draw(GraphicsContext context, Camera camera) {
 
