@@ -1,5 +1,6 @@
 package org.example.tp_leo_enzo;
 
+import javafx.scene.control.Label;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 
@@ -21,8 +22,8 @@ public class InterfaceDebutNiveau {
 
         if (tempsDepuisDernierChangement <= tempsInterfaceNiveau) {
             // afficher écran de présentation du niveau
-            Text txt = new Text("Mon texte en vert");
-            txt.setFill(Color.GREEN);
+            Label lbl = new Label("Mon texte en vert");
+            lbl.setStyle("-fx-text-fill: green;");
 
 
 

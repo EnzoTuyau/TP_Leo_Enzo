@@ -18,6 +18,10 @@ import java.util.ArrayList;
 public class MainJavaFX extends Application {
     public static final double WIDTH = 900, HEIGHT = 580;
     private int debug = 0;
+    private boolean niveau1 = false;
+    private boolean niveau2 = false;
+    private long conteurTemps;
+
 
     public static void main(String[] args) {
         launch(args);
@@ -32,85 +36,86 @@ public class MainJavaFX extends Application {
         root.getChildren().add(canvas);
         var context = canvas.getGraphicsContext2D();
 
+        //création des adresses
         ArrayList<Integer> adresses = new ArrayList<>();
         adresses.add(132);
         adresses.add(176);
         adresses.add(67);
+        //création du camelot
         Camelot camelot = new Camelot(adresses);
+        //création d'une interface
         InterfaceDebutNiveau interface1 = new InterfaceDebutNiveau(camelot);
 
 
-
         var timer = new AnimationTimer() {
-        long dernierTemps = System.nanoTime();
+            long dernierTemps = System.nanoTime();
 
             @Override
             public void handle(long maintenant) {
+                //deltaTemps est le temps écoulé entre 2 frames
                 double deltaTemps = (maintenant - dernierTemps) * 1e-9;
                 dernierTemps = maintenant;
-                //interface du jeu
-                context.setFill(Color.BLACK);
-                context.fillRect(0, 0, WIDTH, HEIGHT);
-                interface1.interfaceNiveau(deltaTemps);
+                //conteur de temps permet de savoir quand 3 secondes se sont écoulées dès le lancement de la première frame
+                conteurTemps+=dernierTemps;
+                //boucle if qui permet d'afficher l'interface du niveau 1 jusqu'à temps qu'on le réussisse
+                if (conteurTemps <= 3 || (conteurTemps<3000 && !niveau1)) {
+                    //interface du jeu
+                    context.setFill(Color.BLACK);
+                    context.fillRect(0, 0, WIDTH, HEIGHT);
+                    interface1.interfaceNiveau(deltaTemps);
+                } else if ((!niveau1 || !niveau2) && conteurTemps > 3) {
+                    // Arrière-plan des niveaux (maison)
+                    Image fond = new Image("brique.png");
+                    ImageView fondbrique = new ImageView(fond);
 
-                // Arrière-plan des niveaux (maison)
-                Image fond = new Image("brique.png");
-                ImageView fondbrique = new ImageView(fond);
+                    //camera
+                    camera.setVelocite(new Point2D(camelot.getVelocite().getX(), 0));
+                    camera.update(deltaTemps);
 
-                //camera
-                camera.setVelocite(new Point2D(camelot.getVelocite().getX(), 0));
-                camera.update(deltaTemps);
 
+                    //avancer camelot
+                    //permet de savoir quand on appuie et quand on lâche une touche
+                    scene.setOnKeyPressed(event -> choixDebogage(event));
+                    scene.setOnKeyReleased(event -> Input.keyReleased(event.getCode()));
+                    boolean gauche = false;
+                    boolean droite = false;
+                    //boucle if pour accélérer uniquement si on est au sol
+                    if (camelot.getPos().getY() == 580 - 144) { //144 est la hauteur du camelot
+                        gauche = Input.isKeyPressed(KeyCode.LEFT);
+                        droite = Input.isKeyPressed(KeyCode.RIGHT);
+                    }
+                    boolean sauter = false;
+                    //boucle if pour ne pas sauter dans les aires
+                    if (camelot.getPos().getY() == 580 - 144) { //144 est la hauteur du camelot
+                        sauter = Input.isKeyPressed(KeyCode.UP);
+                    }
+
+                    camelot.update(gauche, droite, sauter, deltaTemps);
+                    camelot.draw(context, camera);
+                    camelot.changerImg(deltaTemps);
+//                    if (passerniveau1==true){
+//                        niveau1=true;
+//                    }
+
+
+                } else if (niveau1==true && maintenant <= 3) {
+
+                } else
 
 
 
 
 
                 //modes de débogage différent
-                if (debug==1) {
+                if (debug == 1) {
                     context.setFill(Color.YELLOW);
-                    context.fillRect(camera.coordoEcran(camelot.getPos()).getX(), 0, 4,600);
+                    context.fillRect(camera.coordoEcran(camelot.getPos()).getX(), 0, 4, 600);
                 }
-
-                //avancer camelot
-                //permet de savoir quand on appuie et quand on lâche une touche
-                scene.setOnKeyPressed(event -> choixDebogage(event));
-                scene.setOnKeyReleased(event -> Input.keyReleased(event.getCode()));
-                boolean gauche= false;
-                boolean droite= false;
-                //boucle if pour accélérer uniquement si on est au sol
-                if (camelot.getPos().getY()==580-144) { //144 est la hauteur du camelot
-                    gauche = Input.isKeyPressed(KeyCode.LEFT);
-                    droite = Input.isKeyPressed(KeyCode.RIGHT);
-                }
-                    boolean sauter = false;
-                //boucle if pour ne pas sauter dans les aires
-                if (camelot.getPos().getY()==580-144) { //144 est la hauteur du camelot
-                    sauter = Input.isKeyPressed(KeyCode.UP);
-                }
-
-
-                //a supprimer test pour verifier si detecte une touche
-                if(gauche||droite){
-                    context.setFill(Color.RED);
-                    context.fillRect(0,0,50,50);
-                }
-
-                camelot.update(gauche, droite, sauter, deltaTemps);
-                camelot.draw(context, camera);
-                camelot.changerImg(deltaTemps);
-
-
-
-
-
-
 
 
             }
         };
         timer.start();
-
 
 
         primaryStage.setScene(scene);
@@ -119,35 +124,36 @@ public class MainJavaFX extends Application {
     }
 
 
-    public void choixDebogage(KeyEvent KeyEvent){
+    public void choixDebogage(KeyEvent KeyEvent) {
         switch (KeyEvent.getCode()) {
             case D:
-                if (debug==1){
-                    debug=0;
-                }else {
-                    debug=1;
+                if (debug == 1) {
+                    debug = 0;
+                } else {
+                    debug = 1;
                 }
                 break;
             case Q:
-                if (debug==2){
-                    debug=0;
-                }else {
-                    debug=2;
+                if (debug == 2) {
+                    debug = 0;
+                } else {
+                    debug = 2;
                 }
                 break;
             case K:
 
-                if (debug==3){
-                    debug=0;
-                }else {
-                    debug=3;
+                if (debug == 3) {
+                    debug = 0;
+                } else {
+                    debug = 3;
                 }
                 break;
             case L:
-                if (debug==4){
-                    debug=0;
-                }else {
-                    debug=4;;
+                if (debug == 4) {
+                    debug = 0;
+                } else {
+                    debug = 4;
+                    ;
                 }
                 break;
             default:
@@ -155,11 +161,6 @@ public class MainJavaFX extends Application {
                 break;
         }
     }
-
-
-
-
-
 
 
 }
