@@ -59,8 +59,6 @@ public class Camelot extends ObjetDuJeu {
         this.acceleration = new Point2D(0, 0);
     }
 
-
-
     public void changerImg(double deltaTemps) {
         // Durée entre deux changements d'image (en secondes)
         double delai = 0.15;

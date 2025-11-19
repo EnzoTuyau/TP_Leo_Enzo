@@ -37,6 +37,7 @@ public class MainJavaFX extends Application {
         adresses.add(176);
         adresses.add(67);
         Camelot camelot = new Camelot(adresses);
+        InterfaceDebutNiveau interface1 = new InterfaceDebutNiveau(camelot);
 
 
 
@@ -47,14 +48,18 @@ public class MainJavaFX extends Application {
             public void handle(long maintenant) {
                 double deltaTemps = (maintenant - dernierTemps) * 1e-9;
                 dernierTemps = maintenant;
-                // Arrière-plan
+                //interface du jeu
                 context.setFill(Color.BLACK);
                 context.fillRect(0, 0, WIDTH, HEIGHT);
+                interface1.interfaceNiveau(deltaTemps);
+
+                // Arrière-plan des niveaux (maison)
                 Image fond = new Image("brique.png");
                 ImageView fondbrique = new ImageView(fond);
 
-                camera.update(deltaTemps);
+                //camera
                 camera.setVelocite(new Point2D(camelot.getVelocite().getX(), 0));
+                camera.update(deltaTemps);
 
 
 
@@ -68,8 +73,7 @@ public class MainJavaFX extends Application {
                 }
 
                 //avancer camelot
-
-                //permets de savoir quand on appuie et quand on lâche une touche
+                //permet de savoir quand on appuie et quand on lâche une touche
                 scene.setOnKeyPressed(event -> choixDebogage(event));
                 scene.setOnKeyReleased(event -> Input.keyReleased(event.getCode()));
                 boolean gauche= false;
@@ -84,9 +88,6 @@ public class MainJavaFX extends Application {
                 if (camelot.getPos().getY()==580-144) { //144 est la hauteur du camelot
                     sauter = Input.isKeyPressed(KeyCode.UP);
                 }
-
-
-
 
 
                 //a supprimer test pour verifier si detecte une touche
@@ -154,6 +155,8 @@ public class MainJavaFX extends Application {
                 break;
         }
     }
+
+
 
 
 
