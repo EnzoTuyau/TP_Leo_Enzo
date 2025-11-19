@@ -5,6 +5,7 @@ import javafx.application.Application;
 import javafx.geometry.Point2D;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
@@ -54,65 +55,63 @@ public class MainJavaFX extends Application {
             public void handle(long maintenant) {
                 //deltaTemps est le temps écoulé entre 2 frames
                 double deltaTemps = (maintenant - dernierTemps) * 1e-9;
-                dernierTemps = maintenant;
+
                 //conteur de temps permet de savoir quand 3 secondes se sont écoulées dès le lancement de la première frame
-                conteurTemps+=dernierTemps;
+                conteurTemps += dernierTemps;
                 //boucle if qui permet d'afficher l'interface du niveau 1 jusqu'à temps qu'on le réussisse
-                if (conteurTemps <= 3 || (conteurTemps<3000 && !niveau1)) {
-                    //interface du jeu
-                    context.setFill(Color.BLACK);
-                    context.fillRect(0, 0, WIDTH, HEIGHT);
-                    interface1.interfaceNiveau(deltaTemps);
-                } else if ((!niveau1 || !niveau2) && conteurTemps > 3) {
-                    // Arrière-plan des niveaux (maison)
-                    Image fond = new Image("brique.png");
-                    ImageView fondbrique = new ImageView(fond);
-
-                    //camera
-                    camera.setVelocite(new Point2D(camelot.getVelocite().getX(), 0));
-                    camera.update(deltaTemps);
+//                if (conteurTemps <= 3 || (conteurTemps<3 && !niveau1)) {
+                //interface du jeu
+                context.setFill(Color.BLACK);
+                context.fillRect(0, 0, WIDTH, HEIGHT);
+                interface1.interfaceNiveau(deltaTemps);
+//                } else if ((!niveau1 || !niveau2) && conteurTemps > 3) {
+                // Arrière-plan des niveaux (maison)
+                Image fond = new Image("brique.png");
+                ImageView fondbrique = new ImageView(fond);
 
 
-                    //avancer camelot
-                    //permet de savoir quand on appuie et quand on lâche une touche
-                    scene.setOnKeyPressed(event -> choixDebogage(event));
-                    scene.setOnKeyReleased(event -> Input.keyReleased(event.getCode()));
-                    boolean gauche = false;
-                    boolean droite = false;
-                    //boucle if pour accélérer uniquement si on est au sol
-                    if (camelot.getPos().getY() == 580 - 144) { //144 est la hauteur du camelot
-                        gauche = Input.isKeyPressed(KeyCode.LEFT);
-                        droite = Input.isKeyPressed(KeyCode.RIGHT);
-                    }
-                    boolean sauter = false;
-                    //boucle if pour ne pas sauter dans les aires
-                    if (camelot.getPos().getY() == 580 - 144) { //144 est la hauteur du camelot
-                        sauter = Input.isKeyPressed(KeyCode.UP);
-                    }
+                //camera
+//                camera.setVelocite(camelot.getVelocite());
+                camera.setPositionCamera(new Point2D(camelot.getPos().getX() - 0.2 * WIDTH, 0));
 
-                    camelot.update(gauche, droite, sauter, deltaTemps);
-                    camelot.draw(context, camera);
-                    camelot.changerImg(deltaTemps);
+
+                //avancer camelot
+                //permet de savoir quand on appuie et quand on lâche une touche
+                scene.setOnKeyPressed(event -> choixDebogage(event));
+                scene.setOnKeyReleased(event -> Input.keyReleased(event.getCode()));
+                boolean gauche = false;
+                boolean droite = false;
+                //boucle if pour accélérer uniquement si on est au sol
+                if (camelot.getPos().getY() == 580 - 144) { //144 est la hauteur du camelot
+                    gauche = Input.isKeyPressed(KeyCode.LEFT);
+                    droite = Input.isKeyPressed(KeyCode.RIGHT);
+                }
+                boolean sauter = false;
+                //boucle if pour ne pas sauter dans les aires
+                if (camelot.getPos().getY() == 580 - 144) { //144 est la hauteur du camelot
+                    sauter = Input.isKeyPressed(KeyCode.UP);
+                }
+
+
+                camelot.draw(context, camera);
+                camelot.changerImg(deltaTemps);
+                updateTout(context, gauche, droite, sauter, deltaTemps, camera, camelot);
+
+
 //                    if (passerniveau1==true){
 //                        niveau1=true;
 //                    }
 
 
-                } else if (niveau1==true && maintenant <= 3) {
-
-                } else
-
-
-
+//                } else if (niveau1==true && maintenant <= 3) {
+//
+//                } else
 
 
                 //modes de débogage différent
-                if (debug == 1) {
-                    context.setFill(Color.YELLOW);
-                    context.fillRect(camera.coordoEcran(camelot.getPos()).getX(), 0, 4, 600);
-                }
 
 
+                dernierTemps = maintenant;
             }
         };
         timer.start();
@@ -121,6 +120,24 @@ public class MainJavaFX extends Application {
         primaryStage.setScene(scene);
         primaryStage.setTitle("Animations!");
         primaryStage.show();
+    }
+
+    public void updateTout(GraphicsContext context, boolean gauche, boolean droite, boolean sauter, double deltaTemps, Camera camera, Camelot camelot) {
+        camelot.updatePhysique(gauche, droite, sauter, deltaTemps);
+        camera.update(deltaTemps);
+        double positionligneCamelot= camera.coordoEcran(camelot.getPos()).getX()-4;
+        modeDebogage(positionligneCamelot, context);
+
+
+
+
+    }
+
+    public void modeDebogage(double positionligneCamelot, GraphicsContext context){
+        if (debug == 1) {
+            context.setFill(Color.YELLOW);
+            context.fillRect(positionligneCamelot, 0, 4, 600);
+        }
     }
 
 

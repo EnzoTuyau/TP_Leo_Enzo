@@ -12,6 +12,14 @@ public class Camera  {
         this.velocite = velocite;
     }
 
+    public Point2D getPositionCamera() {
+        return positionCamera;
+    }
+
+    public void setPositionCamera(Point2D positionCamera) {
+        this.positionCamera = positionCamera;
+    }
+
     public Camera() {
         positionCamera = new Point2D(0, 0);
         velocite = new Point2D(0, 0);

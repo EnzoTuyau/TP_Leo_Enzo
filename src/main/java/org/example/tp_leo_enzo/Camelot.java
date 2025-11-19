@@ -54,8 +54,8 @@ public class Camelot extends ObjetDuJeu {
         this.argent = 0;
         this.adresses = adresses;
         this.imgCamelot = 1;
-        this.pos = new Point2D(100, 580-144); //144 est la hauteur du camelot
-        this.velocite = new Point2D(0, 0);
+        this.pos = new Point2D(180, 580-144); //144 est la hauteur du camelot
+        this.velocite = new Point2D(400, 0);
         this.acceleration = new Point2D(0, 0);
     }
 
