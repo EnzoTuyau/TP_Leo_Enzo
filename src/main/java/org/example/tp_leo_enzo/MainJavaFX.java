@@ -89,10 +89,15 @@ public class MainJavaFX extends Application {
 
                 //avancer camelot
                 //permet de savoir quand on appuie et quand on lâche une touche
-                scene.setOnKeyPressed(event -> choixDebogage(event));
+                boolean shift = false;
+                scene.setOnKeyPressed(event -> {
+                    choixDebogage(event);
+                    lancerJournaux(shift, camelot, event, context, camera);
+                });
                 scene.setOnKeyReleased(event -> Input.keyReleased(event.getCode()));
                 boolean gauche = false;
                 boolean droite = false;
+
                 //boucle if pour accélérer uniquement si on est au sol
                 if (camelot.getPos().getY() == 580 - 144) { //144 est la hauteur du camelot
                     gauche = Input.isKeyPressed(KeyCode.LEFT);
@@ -108,11 +113,10 @@ public class MainJavaFX extends Application {
                 camelot.draw(context, camera);
                 camelot.changerImg(deltaTemps);
 
+
                 //lancer journaux
-                boolean shift = false;
-                scene.setOnKeyPressed(lancerJournaux -> {
-                    lancerJournaux(shift, camelot, lancerJournaux, context, camera);
-                });
+
+
 
 
 
