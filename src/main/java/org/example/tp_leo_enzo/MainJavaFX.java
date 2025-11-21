@@ -13,6 +13,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import org.example.tp_leo_enzo.maison.Mur;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -38,6 +39,8 @@ public class MainJavaFX extends Application {
         var canvas = new Canvas(WIDTH, HEIGHT);
         root.getChildren().add(canvas);
         var context = canvas.getGraphicsContext2D();
+
+        Mur mur = new Mur();
 
         //création des adresses
         ArrayList<Integer> adresses = new ArrayList<>();
@@ -67,9 +70,16 @@ public class MainJavaFX extends Application {
                 context.fillRect(0, 0, WIDTH, HEIGHT);
                 interface1.interfaceNiveau(deltaTemps);
 //                } else if ((!niveau1 || !niveau2) && conteurTemps > 3) {
+
+
                 // Arrière-plan des niveaux (maison)
-                Image fond = new Image("brique.png");
-                ImageView fondbrique = new ImageView(fond);
+                for (int i = 0; i < mur.getCoordBriques().size(); i++) {
+                    for (int j = 0; j < mur.getCoordBriques().get(i).size(); j++) {
+                        Point2D coordsBriqueCam = camera.coordoEcran(new Point2D(mur.getCoordBriques().get(i).get(j).getX(),mur.getCoordBriques().get(i).get(j).getY()));
+                        context.drawImage(new Image("brique.png"),coordsBriqueCam.getX(),coordsBriqueCam.getY());
+                    }
+                }
+                mur.updatePhysics(camera.getPositionCamera());
 
 
                 //camera
