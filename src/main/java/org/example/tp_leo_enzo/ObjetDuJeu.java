@@ -10,7 +10,7 @@ public abstract class ObjetDuJeu {
     protected Point2D taille;
 
 
-    protected abstract void draw(GraphicsContext context);
+    protected abstract void draw(GraphicsContext context, Camera camera);
 
     protected void update(double deltaTemps) {
         updatePhysique(deltaTemps);
@@ -22,6 +22,7 @@ public abstract class ObjetDuJeu {
         }
         velocite = velocite.add(acc.multiply(deltaTemps));
         pos = pos.add(velocite.multiply(deltaTemps));
+
 
     }
 

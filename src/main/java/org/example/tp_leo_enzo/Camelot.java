@@ -6,14 +6,14 @@ import javafx.scene.image.Image;
 
 import java.util.ArrayList;
 
-public class Camelot extends ObjetDuJeu{
+public class Camelot {
     private int journaux;
     private int argent;
     private ArrayList<Integer> adresses;
     private int imgCamelot;
     private Point2D pos;
     private Point2D velocite;
-    private Point2D acc;
+    private Point2D acceleration;
 
     public Point2D getPos() {
         return pos;
@@ -30,7 +30,7 @@ public class Camelot extends ObjetDuJeu{
         this.imgCamelot = 1;
         this.pos = new Point2D(100,300);
         this.velocite = new Point2D(0,0);
-        this.acc = new Point2D(0,0);
+        this.acceleration = new Point2D(0,0);
     }
 
     public void ajouter12Journaux(){
@@ -66,18 +66,18 @@ public class Camelot extends ObjetDuJeu{
 
     public void updatePhysique(boolean gauche, boolean droite){
         pos = pos.add(velocite);
-        pos = pos.add(acc);
+        pos = pos.add(acceleration);
 
         if (gauche) {
-            acc = new Point2D(-1000, acc.getY());
+            acceleration = new Point2D(-1000, acceleration.getY());
         } else if (droite) {
-            acc = new Point2D(+1000, acc.getY());
+            acceleration = new Point2D(+1000, acceleration.getY());
         } else if (Math.abs(velocite.getX()) > 0.5) {
             int signe = velocite.getX() > 0 ? -1 : +1;
-            acc = new Point2D(signe * 500, acc.getY());
+            acceleration = new Point2D(signe * 500, acceleration.getY());
         } else {
             velocite = new Point2D(0, velocite.getY());
-            acc = new Point2D(0, acc.getY());
+            acceleration = new Point2D(0, acceleration.getY());
         }
 
     }
