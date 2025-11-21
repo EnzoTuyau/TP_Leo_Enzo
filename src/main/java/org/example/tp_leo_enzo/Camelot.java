@@ -16,6 +16,7 @@ public class Camelot extends ObjetDuJeu {
     private Point2D velocite;
     private Point2D acceleration;
     private double tempsDepuisDernierChangement=0;
+    private final Point2D taille = new Point2D(172 ,144);
 
     public Point2D getPos() {
         return pos;
@@ -54,7 +55,7 @@ public class Camelot extends ObjetDuJeu {
         this.argent = 0;
         this.adresses = adresses;
         this.imgCamelot = 1;
-        this.pos = new Point2D(180, 580-144); //144 est la hauteur du camelot
+        this.pos = new Point2D(180, 580- taille.getY());
         this.velocite = new Point2D(400, 0);
         this.acceleration = new Point2D(0, 0);
     }
@@ -108,10 +109,10 @@ public class Camelot extends ObjetDuJeu {
         } else if (sauter){
             velocite = new Point2D(velocite.getX(), -500);
             acceleration = new Point2D(velocite.getX(), 1500);
-        } else if (pos.getY()>580-144){ //144 est la hauteur du camelot
+        } else if (pos.getY()>580-taille.getY()){
             setVelocite(new Point2D(velocite.getX(), 0));
             acceleration= new Point2D(velocite.getX(), 0);
-            setPos(new Point2D(pos.getX(), 580-144)); //144 est la hauteur du camelot
+            setPos(new Point2D(pos.getX(), 580-taille.getY()));
         }else {
             setVelocite(new Point2D(400, velocite.getY()));
         }
@@ -120,7 +121,6 @@ public class Camelot extends ObjetDuJeu {
         velocite = velocite.add(acceleration.multiply(deltaTemps)); //V=V0+AxΔt
 
     }
-
 
     protected void draw(GraphicsContext context, Camera camera) {
 

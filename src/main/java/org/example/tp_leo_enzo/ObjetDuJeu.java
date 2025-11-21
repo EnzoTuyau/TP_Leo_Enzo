@@ -4,10 +4,10 @@ import javafx.geometry.Point2D;
 import javafx.scene.canvas.GraphicsContext;
 
 public abstract class ObjetDuJeu {
-    protected Point2D pos;
+    protected Point2D pos= new Point2D(0,0);
     protected Point2D velocite;
     protected Point2D acc;
-    protected Point2D taille;
+    protected Point2D taille= new Point2D(0,0);
 
 
     protected abstract void draw(GraphicsContext context, Camera camera);

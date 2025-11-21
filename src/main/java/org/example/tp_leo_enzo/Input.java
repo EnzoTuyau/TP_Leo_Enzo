@@ -20,8 +20,6 @@ public class Input {
         }
 
         public static boolean isKeyPressed(KeyCode code) {
-
-
             return touches.contains(code);
         }
 

@@ -15,12 +15,14 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 public class MainJavaFX extends Application {
     public static final double WIDTH = 900, HEIGHT = 580;
     private int debug = 0;
     private boolean niveau1 = false;
     private boolean niveau2 = false;
+    boolean changerMasse = true;
     private long conteurTemps;
 
 
@@ -95,6 +97,16 @@ public class MainJavaFX extends Application {
 
                 camelot.draw(context, camera);
                 camelot.changerImg(deltaTemps);
+
+                //lancer journaux
+                boolean shift = false;
+                scene.setOnKeyPressed(lancerJournaux -> {
+                    lancerJournaux(shift, camelot, lancerJournaux, context, camera);
+                });
+
+
+
+
                 updateTout(context, gauche, droite, sauter, deltaTemps, camera, camelot);
 
 
@@ -103,9 +115,9 @@ public class MainJavaFX extends Application {
 //                    }
 
 
-//                } else if (niveau1==true && maintenant <= 3) {
+//               } else if (niveau1==true && maintenant <= 3) {
 //
-//                } else
+//               } else {}
 
 
                 //modes de débogage différent
@@ -125,15 +137,49 @@ public class MainJavaFX extends Application {
     public void updateTout(GraphicsContext context, boolean gauche, boolean droite, boolean sauter, double deltaTemps, Camera camera, Camelot camelot) {
         camelot.updatePhysique(gauche, droite, sauter, deltaTemps);
         camera.update(deltaTemps);
-        double positionligneCamelot= camera.coordoEcran(camelot.getPos()).getX()-4;
+        double positionligneCamelot = camera.coordoEcran(camelot.getPos()).getX() - 4;
         modeDebogage(positionligneCamelot, context);
 
+
+    }
+
+    public void lancerJournaux(Boolean shift, Camelot camelot, KeyEvent lancerJournaux, GraphicsContext context, Camera camera) {
+        Random random = new Random();
+        double masseJournauxNiveau=1;
+        Point2D pZ = new Point2D(900, -900);
+        Point2D pX = new Point2D(150, -1100);
+
+        if (changerMasse) {
+            double masse;
+            masse = random.nextDouble(1, 2);
+            masseJournauxNiveau = masse;
+            changerMasse = false;
+        }
+
+        Journaux journaux = new Journaux(camelot.getCentre(), camelot.getVelocite(), masseJournauxNiveau);
+
+        shift = Input.isKeyPressed(lancerJournaux.getCode());
+        if (shift) {
+            if (lancerJournaux.getCode() == KeyCode.Z) {
+                pZ.multiply(1.5);
+            } else if (lancerJournaux.getCode() == KeyCode.X) {
+                pX.multiply(1.5);
+            }
+        } else if (lancerJournaux.getCode() == KeyCode.Z) {
+
+            journaux.setPos(new Point2D(masseJournauxNiveau*journaux.getVelocite().getX(), masseJournauxNiveau*journaux.getVelocite().getY()));
+
+        } else if (lancerJournaux.getCode() == KeyCode.X) {
+
+        }
+
+        journaux.draw(context,camera);
 
 
 
     }
 
-    public void modeDebogage(double positionligneCamelot, GraphicsContext context){
+    public void modeDebogage(double positionligneCamelot, GraphicsContext context) {
         if (debug == 1) {
             context.setFill(Color.YELLOW);
             context.fillRect(positionligneCamelot, 0, 4, 600);
