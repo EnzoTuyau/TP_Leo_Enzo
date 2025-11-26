@@ -23,7 +23,7 @@ public class Porte extends ObjetDuJeu {
         if (getDroite() < 0) { //boucle if pour vérifier si les objets sortent de la caméra
 
         }
-        velocite = velocite.add(acc.multiply(deltaTemps));
+        velocite = velocite.add(acceleration.multiply(deltaTemps));
         pos = pos.add(velocite.multiply(deltaTemps));
 
 

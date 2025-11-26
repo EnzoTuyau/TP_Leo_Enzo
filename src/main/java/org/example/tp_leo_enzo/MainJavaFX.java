@@ -75,8 +75,8 @@ public class MainJavaFX extends Application {
                 // Arrière-plan des niveaux (maison)
                 for (int i = 0; i < mur.getCoordBriques().size(); i++) {
                     for (int j = 0; j < mur.getCoordBriques().get(i).size(); j++) {
-                        Point2D coordsBriqueCam = camera.coordoEcran(new Point2D(mur.getCoordBriques().get(i).get(j).getX(),mur.getCoordBriques().get(i).get(j).getY()));
-                        context.drawImage(new Image("brique.png"),coordsBriqueCam.getX(),coordsBriqueCam.getY());
+                        Point2D coordsBriqueCam = camera.coordoEcran(new Point2D(mur.getCoordBriques().get(i).get(j).getX(), mur.getCoordBriques().get(i).get(j).getY()));
+                        context.drawImage(new Image("brique.png"), coordsBriqueCam.getX(), coordsBriqueCam.getY());
                     }
                 }
                 mur.updatePhysics(camera.getPositionCamera());
@@ -87,12 +87,12 @@ public class MainJavaFX extends Application {
                 camera.setPositionCamera(new Point2D(camelot.getPos().getX() - 0.2 * WIDTH, 0));
 
 
-                //avancer camelot
+                //avancer camelot, lancer journaux et choix de débogages
                 //permet de savoir quand on appuie et quand on lâche une touche
-                boolean shift = false;
+
                 scene.setOnKeyPressed(event -> {
+                    Input.keyPressed(event.getCode());
                     choixDebogage(event);
-                    lancerJournaux(shift, camelot, event, context, camera);
                 });
                 scene.setOnKeyReleased(event -> Input.keyReleased(event.getCode()));
                 boolean gauche = false;
@@ -109,19 +109,15 @@ public class MainJavaFX extends Application {
                     sauter = Input.isKeyPressed(KeyCode.UP);
                 }
 
-
                 camelot.draw(context, camera);
                 camelot.changerImg(deltaTemps);
 
 
                 //lancer journaux
+                Journaux journaux = lancerJournaux(camelot, context, camera);
 
 
-
-
-
-
-                updateTout(context, gauche, droite, sauter, deltaTemps, camera, camelot);
+                updateTout(context, gauche, droite, sauter, deltaTemps, camera, camelot, journaux);
 
 
 //                    if (passerniveau1==true){
@@ -136,7 +132,6 @@ public class MainJavaFX extends Application {
 
                 //modes de débogage différent
 
-
                 dernierTemps = maintenant;
             }
         };
@@ -148,50 +143,58 @@ public class MainJavaFX extends Application {
         primaryStage.show();
     }
 
-    public void updateTout(GraphicsContext context, boolean gauche, boolean droite, boolean sauter, double deltaTemps, Camera camera, Camelot camelot) {
+    //Méthodes
+
+    public void updateTout(GraphicsContext context, boolean gauche, boolean droite, boolean sauter, double deltaTemps, Camera camera, Camelot camelot, Journaux journaux) {
         camelot.updatePhysique(gauche, droite, sauter, deltaTemps);
         camera.update(deltaTemps);
         double positionligneCamelot = camera.coordoEcran(camelot.getPos()).getX() - 4;
         modeDebogage(positionligneCamelot, context);
+        journaux.updatePhysique(deltaTemps);
 
 
     }
 
-    public void lancerJournaux(Boolean shift, Camelot camelot, KeyEvent lancerJournaux, GraphicsContext context, Camera camera) {
-        Random random = new Random();
-        double masseJournauxNiveau=1;
-        Point2D pZ = new Point2D(900, -900);
-        Point2D pX = new Point2D(150, -1100);
-
-        if (changerMasse) {
-            double masse;
-            masse = random.nextDouble(1, 2);
-            masseJournauxNiveau = masse;
-            changerMasse = false;
-        }
+    public Journaux lancerJournaux(Camelot camelot, GraphicsContext context, Camera camera) {
+        boolean shift = Input.isKeyPressed(KeyCode.SHIFT);
+        double masseJournauxNiveau = 0;
+        masseJournauxNiveau = masse();
+        Point2D quantiteMouvementZ = new Point2D(900, -900);
+        Point2D quantiteMouvementX = new Point2D(150, -1100);
 
         Journaux journaux = new Journaux(camelot.getCentre(), camelot.getVelocite(), masseJournauxNiveau);
 
-        shift = Input.isKeyPressed(lancerJournaux.getCode());
         if (shift) {
-            if (lancerJournaux.getCode() == KeyCode.Z) {
-                pZ.multiply(1.5);
-            } else if (lancerJournaux.getCode() == KeyCode.X) {
-                pX.multiply(1.5);
+            if (Input.isKeyPressed(KeyCode.Z)) {
+                quantiteMouvementZ.multiply(1.5);
+            } else if (Input.isKeyPressed(KeyCode.X)) {
+                quantiteMouvementX.multiply(1.5);
             }
-        } else if (lancerJournaux.getCode() == KeyCode.Z) {
+        } else if (Input.isKeyPressed(KeyCode.Z)) {
+//            Point2D quantiteMouvement = new Point2D(masseJournauxNiveau * journaux.getVelocite().getX(), masseJournauxNiveau * journaux.getVelocite().getY());
+            journaux.setVelocite(new Point2D(camelot.getVelocite().getX() + quantiteMouvementZ.getX() / masseJournauxNiveau, camelot.getVelocite().getY() + quantiteMouvementZ.getY() / masseJournauxNiveau));
 
-            journaux.setPos(new Point2D(masseJournauxNiveau*journaux.getVelocite().getX(), masseJournauxNiveau*journaux.getVelocite().getY()));
-
-        } else if (lancerJournaux.getCode() == KeyCode.X) {
+        } else if (Input.isKeyPressed(KeyCode.X)) {
+            journaux.setVelocite(new Point2D(camelot.getVelocite().getX() + quantiteMouvementX.getX() / masseJournauxNiveau, camelot.getVelocite().getY() + quantiteMouvementX.getY() / masseJournauxNiveau));
 
         }
 
-        journaux.draw(context,camera);
+        context.drawImage(new Image("journal.png"), camelot.getCentre().getX(), camelot.getCentre().getY());
 
 
-
+        return journaux;
     }
+
+    public double masse() {
+        Random random = new Random();
+        double masseJournauxNiveau = 1;
+        if (changerMasse) {
+            masseJournauxNiveau = random.nextDouble(1, 2);
+            changerMasse = false;
+        }
+        return masseJournauxNiveau;
+    }
+
 
     public void modeDebogage(double positionligneCamelot, GraphicsContext context) {
         if (debug == 1) {

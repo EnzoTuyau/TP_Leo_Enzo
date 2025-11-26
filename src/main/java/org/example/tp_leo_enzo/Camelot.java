@@ -12,11 +12,10 @@ public class Camelot extends ObjetDuJeu {
     private int argent;
     private ArrayList<Integer> adresses;
     private int imgCamelot;
-    private Point2D pos;
-    private Point2D velocite;
-    private Point2D acceleration;
+//    private Point2D pos;
+//    private Point2D velocite;
+//    private Point2D acceleration;
     private double tempsDepuisDernierChangement=0;
-    private final Point2D taille = new Point2D(172 ,144);
 
     public Point2D getPos() {
         return pos;
@@ -51,13 +50,14 @@ public class Camelot extends ObjetDuJeu {
     }
 
     public Camelot(ArrayList<Integer> adresses) {
+        taille = new Point2D(172 ,144);
         this.journaux = 24;
         this.argent = 0;
         this.adresses = adresses;
         this.imgCamelot = 1;
         this.pos = new Point2D(180, 580- taille.getY());
         this.velocite = new Point2D(400, 0);
-        this.acceleration = new Point2D(0, 0);
+        acceleration = new Point2D(0, 0);
     }
 
     public void changerImg(double deltaTemps) {

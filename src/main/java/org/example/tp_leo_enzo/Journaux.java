@@ -5,10 +5,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 
 public class Journaux extends ObjetDuJeu {
-    private Point2D pos;
-    private Point2D velocite;
-    private Point2D acc = new Point2D(0, 1500);
-    private final Point2D taille = new Point2D(52, 31);
+
     private double masse;
 
     public Point2D getVelocite() {
@@ -25,10 +22,24 @@ public class Journaux extends ObjetDuJeu {
         this.pos = pos;
         this.velocite = velocite;
         this.masse = masse;
+        acceleration = new Point2D(0, 1500);
+        taille = new Point2D(52, 31);
+    }
+
+    public void updatePhysique(double deltaTemps){
+        pos = pos.add(velocite.multiply(deltaTemps)); //X=X0+VxΔt
+        velocite = velocite.add(acceleration.multiply(deltaTemps)); //V=V0+AxΔt
+
     }
 
 
+    public void setVelocite(Point2D velocite) {
+        this.velocite = velocite;
+    }
 
+    public Point2D getPos() {
+        return pos;
+    }
 
     @Override
     protected void draw(GraphicsContext context, Camera camera) {
