@@ -178,8 +178,9 @@ public class MainJavaFX extends Application {
             journaux.setVelocite(new Point2D(camelot.getVelocite().getX() + quantiteMouvementX.getX() / masseJournauxNiveau, camelot.getVelocite().getY() + quantiteMouvementX.getY() / masseJournauxNiveau));
 
         }
-
         context.drawImage(new Image("journal.png"), camelot.getCentre().getX(), camelot.getCentre().getY());
+
+
 
 
         return journaux;

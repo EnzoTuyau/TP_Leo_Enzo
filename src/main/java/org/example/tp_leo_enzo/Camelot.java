@@ -55,8 +55,8 @@ public class Camelot extends ObjetDuJeu {
         this.argent = 0;
         this.adresses = adresses;
         this.imgCamelot = 1;
-        this.pos = new Point2D(180, 580- taille.getY());
-        this.velocite = new Point2D(400, 0);
+        pos = new Point2D(180, 580- taille.getY());
+        velocite = new Point2D(400, 0);
         acceleration = new Point2D(0, 0);
     }
 
