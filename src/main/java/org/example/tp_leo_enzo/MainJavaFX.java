@@ -7,15 +7,16 @@ import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import org.example.tp_leo_enzo.maison.Maison;
 import org.example.tp_leo_enzo.maison.Mur;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 public class MainJavaFX extends Application {
     public static final double WIDTH = 900, HEIGHT = 580;
@@ -23,7 +24,7 @@ public class MainJavaFX extends Application {
     private boolean niveau1 = false;
     private boolean niveau2 = false;
     private long conteurTemps;
-
+    private ArrayList<Maison> maisons = new ArrayList<>();
 
     public static void main(String[] args) {
         launch(args);
@@ -31,6 +32,7 @@ public class MainJavaFX extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
+        Random rnd = new Random();
         var camera = new Camera();
         var root = new Pane();
         var scene = new Scene(root, WIDTH, HEIGHT);
@@ -39,7 +41,10 @@ public class MainJavaFX extends Application {
         var context = canvas.getGraphicsContext2D();
 
         Mur mur = new Mur();
-
+        int addMaison1 = rnd.nextInt(100,951);
+        for (int i = 0; i < 12; i++) {
+            maisons.add(new Maison(i,HEIGHT,WIDTH,addMaison1+i*2));
+        }
         //création des adresses
         ArrayList<Integer> adresses = new ArrayList<>();
         adresses.add(132);
@@ -100,6 +105,14 @@ public class MainJavaFX extends Application {
                 //boucle if pour ne pas sauter dans les aires
                 if (camelot.getPos().getY() == 580 - 144) { //144 est la hauteur du camelot
                     sauter = Input.isKeyPressed(KeyCode.UP);
+                }
+
+
+                if(!maisons.isEmpty()&&maisons.get(0).getX()+1300<camera.getPositionCamera().getX()){
+                    maisons.remove(0);
+                }
+                for (int i = 0; i < maisons.size(); i++) {
+                    maisons.get(i).draw(context,camera);
                 }
 
 
