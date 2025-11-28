@@ -11,6 +11,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import org.example.tp_leo_enzo.maison.Mur;
 import org.example.tp_leo_enzo.maison.Maison;
@@ -28,6 +29,7 @@ public class MainJavaFX extends Application {
     private ArrayList<Journaux> journauxLances = new ArrayList<>();
     private ArrayList<Maison> maisons = new ArrayList<>();
     private long dernierTir = 0;
+    private ArrayList<Integer> adresseMaison = new ArrayList<>();
 
     public static void main(String[] args) {
         launch(args);
@@ -47,6 +49,10 @@ public class MainJavaFX extends Application {
         int addMaison1 = rnd.nextInt(100, 951);
         for (int i = 0; i < 12; i++) {
             maisons.add(new Maison(i, HEIGHT, WIDTH, addMaison1 + i * 2));
+            if (maisons.get(i).isAbonne()){
+                adresseMaison.add(maisons.get(i).getAdresse());
+            }
+
         }
 
         //création des adresses
@@ -123,10 +129,15 @@ public class MainJavaFX extends Application {
                 }
 
                 //lancer journaux
-                lancerJournaux(camelot);
+                if(camelot.getJournaux()>0) {
+                    verifierLancerJournaux(camelot);
+                }
+
                 double positionligneCamelot = camera.coordoEcran(camelot.getPos()).getX() - 4;
                 modeDebogage(positionligneCamelot, context);
                 modeDebogage(positionligneCamelot, context);
+
+                interfaceDuHaut(context, camelot);
 
                 camelot.draw(context, camera);
                 camelot.changerImg(deltaTemps);
@@ -186,7 +197,7 @@ public class MainJavaFX extends Application {
 
     }
 
-    public void lancerJournaux(Camelot camelot) {
+    public void verifierLancerJournaux(Camelot camelot) {
 
         boolean shift = Input.isKeyPressed(KeyCode.SHIFT);
         boolean z = Input.isKeyPressed(KeyCode.Z);
@@ -238,6 +249,7 @@ public class MainJavaFX extends Application {
 
         //ajoute le journal lancé dans la liste de journaux
         journauxLances.add(journal);
+        camelot.lancerJournal();
         dernierTir = maintenant; // on enregistre le tir
     }
 
@@ -296,6 +308,28 @@ public class MainJavaFX extends Application {
                 Input.keyPressed(KeyEvent.getCode());
                 break;
         }
+    }
+
+    public void interfaceDuHaut(GraphicsContext context, Camelot camelot) {
+
+        context.setFill(new Color(0,0,0,0.5));
+        context.fillRect(0,0,WIDTH, 50);
+        context.setFill(Color.WHITE);
+        context.drawImage(new Image("icone-journal.png"),5,9);
+        context.setFont(Font.font(28));
+        context.fillText(camelot.getJournaux()+"", 50, 35);
+        context.drawImage(new Image("icone-dollar.png"), 100, 9);
+        context.fillText(camelot.getArgent()+"", 160,35);
+        context.drawImage(new Image("icone-maison.png"), 200,9);
+        int positionXNumeroMaisonAbonne=250;
+
+        for (int i = 0; i < adresseMaison.size(); i++) {
+            context.fillText(adresseMaison.get(i)+"", positionXNumeroMaisonAbonne+53*i, 35);
+
+        }
+
+
+
     }
 
 

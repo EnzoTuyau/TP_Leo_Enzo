@@ -8,6 +8,7 @@ import org.example.tp_leo_enzo.Journaux;
 import java.util.ArrayList;
 import java.util.Random;
 
+
 public class Maison {
     private Porte porte;
     private BoiteAuxLettres boiteAuxLettres;
@@ -15,9 +16,17 @@ public class Maison {
     private int nbFenetres;
     private int adresse;
     private final double posMaisonX;
+    private boolean abonne;
 
+    public boolean isAbonne() {
+        return abonne;
+    }
 
-    public Maison(int nbMaison,double HEIGHT, double WIDTH, int adresse){
+    public int getAdresse() {
+        return adresse;
+    }
+
+    public Maison(int nbMaison, double HEIGHT, double WIDTH, int adresse){
         Random rnd = new Random();
         posMaisonX = (nbMaison+1)*1300;
         porte = new Porte(new Point2D(posMaisonX,HEIGHT-195),adresse);
@@ -26,6 +35,8 @@ public class Maison {
         for (int i = 0; i < nbFenetres; i++) {
             fenetres.add(new Fenetre(new Point2D(posMaisonX+300*(i+1),50)));
         }
+        this.adresse=adresse;
+        this.abonne= rnd.nextBoolean();
     }
 
     public void draw(GraphicsContext context, Camera camera){

@@ -33,7 +33,7 @@ public class Camelot extends ObjetDuJeu {
     }
 
     public int getJournaux() {
-        return this.argent;
+        return this.journaux;
     }
 
     public int getArgent() {
@@ -46,6 +46,10 @@ public class Camelot extends ObjetDuJeu {
 
     public void ajouterArgent(int argent) {
         this.argent = this.argent + argent;
+    }
+
+    public void lancerJournal(){
+        this.journaux=this.journaux-1;
     }
 
     public Camelot(ArrayList<Integer> adresses) {
