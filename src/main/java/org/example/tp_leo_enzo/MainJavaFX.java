@@ -16,14 +16,12 @@ import javafx.stage.Stage;
 import org.example.tp_leo_enzo.maison.Mur;
 
 import java.util.ArrayList;
-import java.util.Random;
 
 public class MainJavaFX extends Application {
     public static final double WIDTH = 900, HEIGHT = 580;
     private int debug = 0;
     private boolean niveau1 = false;
     private boolean niveau2 = false;
-    boolean changerMasse = true;
     private long conteurTemps;
 
 
@@ -75,8 +73,8 @@ public class MainJavaFX extends Application {
                 // Arrière-plan des niveaux (maison)
                 for (int i = 0; i < mur.getCoordBriques().size(); i++) {
                     for (int j = 0; j < mur.getCoordBriques().get(i).size(); j++) {
-                        Point2D coordsBriqueCam = camera.coordoEcran(new Point2D(mur.getCoordBriques().get(i).get(j).getX(), mur.getCoordBriques().get(i).get(j).getY()));
-                        context.drawImage(new Image("brique.png"), coordsBriqueCam.getX(), coordsBriqueCam.getY());
+                        Point2D coordsBriqueCam = camera.coordoEcran(new Point2D(mur.getCoordBriques().get(i).get(j).getX(),mur.getCoordBriques().get(i).get(j).getY()));
+                        context.drawImage(new Image("brique.png"),coordsBriqueCam.getX(),coordsBriqueCam.getY());
                     }
                 }
                 mur.updatePhysics(camera.getPositionCamera());
@@ -87,17 +85,12 @@ public class MainJavaFX extends Application {
                 camera.setPositionCamera(new Point2D(camelot.getPos().getX() - 0.2 * WIDTH, 0));
 
 
-                //avancer camelot, lancer journaux et choix de débogages
+                //avancer camelot
                 //permet de savoir quand on appuie et quand on lâche une touche
-
-                scene.setOnKeyPressed(event -> {
-                    Input.keyPressed(event.getCode());
-                    choixDebogage(event);
-                });
+                scene.setOnKeyPressed(event -> choixDebogage(event));
                 scene.setOnKeyReleased(event -> Input.keyReleased(event.getCode()));
                 boolean gauche = false;
                 boolean droite = false;
-
                 //boucle if pour accélérer uniquement si on est au sol
                 if (camelot.getPos().getY() == 580 - 144) { //144 est la hauteur du camelot
                     gauche = Input.isKeyPressed(KeyCode.LEFT);
@@ -109,15 +102,10 @@ public class MainJavaFX extends Application {
                     sauter = Input.isKeyPressed(KeyCode.UP);
                 }
 
+
                 camelot.draw(context, camera);
                 camelot.changerImg(deltaTemps);
-
-
-                //lancer journaux
-                Journaux journaux = lancerJournaux(camelot, context, camera);
-
-
-                updateTout(context, gauche, droite, sauter, deltaTemps, camera, camelot, journaux);
+                updateTout(context, gauche, droite, sauter, deltaTemps, camera, camelot);
 
 
 //                    if (passerniveau1==true){
@@ -125,12 +113,13 @@ public class MainJavaFX extends Application {
 //                    }
 
 
-//               } else if (niveau1==true && maintenant <= 3) {
+//                } else if (niveau1==true && maintenant <= 3) {
 //
-//               } else {}
+//                } else
 
 
                 //modes de débogage différent
+
 
                 dernierTemps = maintenant;
             }
@@ -143,61 +132,18 @@ public class MainJavaFX extends Application {
         primaryStage.show();
     }
 
-    //Méthodes
-
-    public void updateTout(GraphicsContext context, boolean gauche, boolean droite, boolean sauter, double deltaTemps, Camera camera, Camelot camelot, Journaux journaux) {
+    public void updateTout(GraphicsContext context, boolean gauche, boolean droite, boolean sauter, double deltaTemps, Camera camera, Camelot camelot) {
         camelot.updatePhysique(gauche, droite, sauter, deltaTemps);
         camera.update(deltaTemps);
-        double positionligneCamelot = camera.coordoEcran(camelot.getPos()).getX() - 4;
+        double positionligneCamelot= camera.coordoEcran(camelot.getPos()).getX()-4;
         modeDebogage(positionligneCamelot, context);
-        journaux.updatePhysique(deltaTemps);
+
+
 
 
     }
 
-    public Journaux lancerJournaux(Camelot camelot, GraphicsContext context, Camera camera) {
-        boolean shift = Input.isKeyPressed(KeyCode.SHIFT);
-        double masseJournauxNiveau = 0;
-        masseJournauxNiveau = masse();
-        Point2D quantiteMouvementZ = new Point2D(900, -900);
-        Point2D quantiteMouvementX = new Point2D(150, -1100);
-
-        Journaux journaux = new Journaux(camelot.getCentre(), camelot.getVelocite(), masseJournauxNiveau);
-
-        if (shift) {
-            if (Input.isKeyPressed(KeyCode.Z)) {
-                quantiteMouvementZ.multiply(1.5);
-            } else if (Input.isKeyPressed(KeyCode.X)) {
-                quantiteMouvementX.multiply(1.5);
-            }
-        } else if (Input.isKeyPressed(KeyCode.Z)) {
-//            Point2D quantiteMouvement = new Point2D(masseJournauxNiveau * journaux.getVelocite().getX(), masseJournauxNiveau * journaux.getVelocite().getY());
-            journaux.setVelocite(new Point2D(camelot.getVelocite().getX() + quantiteMouvementZ.getX() / masseJournauxNiveau, camelot.getVelocite().getY() + quantiteMouvementZ.getY() / masseJournauxNiveau));
-
-        } else if (Input.isKeyPressed(KeyCode.X)) {
-            journaux.setVelocite(new Point2D(camelot.getVelocite().getX() + quantiteMouvementX.getX() / masseJournauxNiveau, camelot.getVelocite().getY() + quantiteMouvementX.getY() / masseJournauxNiveau));
-
-        }
-        context.drawImage(new Image("journal.png"), camelot.getCentre().getX(), camelot.getCentre().getY());
-
-
-
-
-        return journaux;
-    }
-
-    public double masse() {
-        Random random = new Random();
-        double masseJournauxNiveau = 1;
-        if (changerMasse) {
-            masseJournauxNiveau = random.nextDouble(1, 2);
-            changerMasse = false;
-        }
-        return masseJournauxNiveau;
-    }
-
-
-    public void modeDebogage(double positionligneCamelot, GraphicsContext context) {
+    public void modeDebogage(double positionligneCamelot, GraphicsContext context){
         if (debug == 1) {
             context.setFill(Color.YELLOW);
             context.fillRect(positionligneCamelot, 0, 4, 600);
