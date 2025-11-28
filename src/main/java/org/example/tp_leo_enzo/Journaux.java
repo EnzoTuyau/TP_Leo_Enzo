@@ -43,17 +43,8 @@ public class Journaux extends ObjetDuJeu {
 
     @Override
     protected void draw(GraphicsContext context, Camera camera) {
-
         Image journal = new Image("journal.png");
-
         Point2D posCam = camera.coordoEcran(pos);
-
-        context.drawImage(
-                journal,
-                posCam.getX(),
-                posCam.getY(),
-                taille.getX(),
-                taille.getY()
-        );
+        context.drawImage(journal, posCam.getX(), posCam.getY(), taille.getX(), taille.getY());
     }
 }

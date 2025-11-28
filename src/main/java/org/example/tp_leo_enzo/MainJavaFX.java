@@ -14,6 +14,7 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import org.example.tp_leo_enzo.maison.Mur;
 import org.example.tp_leo_enzo.maison.Maison;
+
 import java.util.Random;
 import java.util.ArrayList;
 
@@ -43,9 +44,9 @@ public class MainJavaFX extends Application {
         var context = canvas.getGraphicsContext2D();
 
         Mur mur = new Mur();
-        int addMaison1 = rnd.nextInt(100,951);
+        int addMaison1 = rnd.nextInt(100, 951);
         for (int i = 0; i < 12; i++) {
-            maisons.add(new Maison(i,HEIGHT,WIDTH,addMaison1+i*2));
+            maisons.add(new Maison(i, HEIGHT, WIDTH, addMaison1 + i * 2));
         }
 
         //création des adresses
@@ -81,8 +82,8 @@ public class MainJavaFX extends Application {
                 // Arrière-plan des niveaux (maison)
                 for (int i = 0; i < mur.getCoordBriques().size(); i++) {
                     for (int j = 0; j < mur.getCoordBriques().get(i).size(); j++) {
-                        Point2D coordsBriqueCam = camera.coordoEcran(new Point2D(mur.getCoordBriques().get(i).get(j).getX(),mur.getCoordBriques().get(i).get(j).getY()));
-                        context.drawImage(new Image("brique.png"),coordsBriqueCam.getX(),coordsBriqueCam.getY());
+                        Point2D coordsBriqueCam = camera.coordoEcran(new Point2D(mur.getCoordBriques().get(i).get(j).getX(), mur.getCoordBriques().get(i).get(j).getY()));
+                        context.drawImage(new Image("brique.png"), coordsBriqueCam.getX(), coordsBriqueCam.getY());
                     }
                 }
                 mur.updatePhysics(camera.getPositionCamera());
@@ -114,20 +115,22 @@ public class MainJavaFX extends Application {
                     sauter = Input.isKeyPressed(KeyCode.UP);
                 }
 
-                if(!maisons.isEmpty()&&maisons.get(0).getX()+1300<camera.getPositionCamera().getX()){
+                if (!maisons.isEmpty() && maisons.get(0).getX() + 1300 < camera.getPositionCamera().getX()) {
                     maisons.remove(0);
                 }
                 for (int i = 0; i < maisons.size(); i++) {
-                    maisons.get(i).draw(context,camera);
+                    maisons.get(i).draw(context, camera);
                 }
 
                 //lancer journaux
                 lancerJournaux(camelot);
+                double positionligneCamelot = camera.coordoEcran(camelot.getPos()).getX() - 4;
+                modeDebogage(positionligneCamelot, context);
+                modeDebogage(positionligneCamelot, context);
 
                 camelot.draw(context, camera);
                 camelot.changerImg(deltaTemps);
                 updateTout(context, gauche, droite, sauter, deltaTemps, camera, camelot);
-
 
 
 //                    if (passerniveau1==true){
@@ -158,21 +161,27 @@ public class MainJavaFX extends Application {
     public void updateTout(GraphicsContext context, boolean gauche, boolean droite, boolean sauter, double deltaTemps, Camera camera, Camelot camelot) {
         camelot.updatePhysique(gauche, droite, sauter, deltaTemps);
         camera.update(deltaTemps);
-        double positionligneCamelot = camera.coordoEcran(camelot.getPos()).getX() - 4;
-        modeDebogage(positionligneCamelot, context);
-        // Mise à jour des journaux lancés
+
+
+        // met à jour tous les journaux qui sont lancés
         for (int i = 0; i < journauxLances.size(); i++) {
 
-            Journaux j = journauxLances.get(i);
+            Journaux journalLance = journauxLances.get(i);
 
-            j.updatePhysique(deltaTemps);
-            j.draw(context, camera);
+            journalLance.updatePhysique(deltaTemps);
+            journalLance.draw(context, camera);
 
-            // si trop loin, on supprime
-            if (j.getPos().getY() > HEIGHT + 200 || j.getPos().getX() < -500 || j.getPos().getX() > 10000) {
+            double positionXCamera = camera.getPositionCamera().getX();
+
+            //boucle if qui vérifie si les journaux dépassent de la caméra puis les enlève
+            if (journalLance.getPos().getY() > HEIGHT || //dépasse par le bas
+                    journalLance.getPos().getX() + journalLance.taille.getX() < positionXCamera  || // derrière la caméra
+                    journalLance.getPos().getX() > positionXCamera + WIDTH // trop loin devant
+            ) {
                 journauxLances.remove(i--);
             }
         }
+
 
 
     }
@@ -183,50 +192,53 @@ public class MainJavaFX extends Application {
         boolean z = Input.isKeyPressed(KeyCode.Z);
         boolean x = Input.isKeyPressed(KeyCode.X);
 
-        // Aucune touche → rien
-        if (!z && !x) return;
+        // si aucune touche n’est enfoncée, on quitte tout de suite la méthode
+        if (!z && !x) {
+            return;
+        }
 
-        // --- Empêcher tir trop rapide ---
+        // met un délai de 0.5 seconde
         long maintenant = System.nanoTime();
         double secondesDepuisDernierTir = (maintenant - dernierTir) * 1e-9;
 
+        // quitte directement la méthode dès que le délai est moins de 0.5 secondes
         if (secondesDepuisDernierTir < 0.5) {
-            return; // trop tôt pour tirer
+            return;
         }
-        // ---------------------------------
-
-        dernierTir = maintenant; // on enregistre le tir
 
         // Masse du journal (aléatoire au début du niveau)
         double masseJournaux = masse();
 
-        // quantité de mouvement (« force »)
-        Point2D forceZ = new Point2D(900, -900);
-        Point2D forceX = new Point2D(150, -1100);
+        // quantité de mouvement
+        Point2D quantiteMouvementZ = new Point2D(150, -1100);
+        Point2D quantiteMouvementX = new Point2D(900, -900);
 
-        if (shift) {
-            if (z) forceZ = forceZ.multiply(1.5);
-            if (x) forceX = forceX.multiply(1.5);
+        if (shift) { //boucle if qui se déclanche si on appuie shift
+            if (z)
+                quantiteMouvementZ = quantiteMouvementZ.multiply(1.5); //boucle if qui se déclanche si on appuie shift puis z
+            if (x)
+                quantiteMouvementX = quantiteMouvementX.multiply(1.5); //boucle if qui se déclanche si on appuie shift puis x
         }
 
-        // Centre du camelot (comme dans le pdf)
-        Point2D posDepart = camelot.getCentre();
+        // Centre du camelot
+        Point2D posCentreCamelot = camelot.getCentre();
 
         // création du journal
-        Journaux journal = new Journaux(posDepart, camelot.getVelocite(), masseJournaux);
+        Journaux journal = new Journaux(posCentreCamelot, camelot.getVelocite(), masseJournaux);
 
+
+        //double boucle if pour lancer le journal dans la bonne direction si on pèse z ou x
         if (z) {
-            journal.setVelocite(
-                    camelot.getVelocite().add(forceZ.multiply(1 / masseJournaux))
-            );
+            journal.setVelocite(camelot.getVelocite().add(quantiteMouvementZ.multiply(1 / masseJournaux)));
         }
         if (x) {
-            journal.setVelocite(
-                    camelot.getVelocite().add(forceX.multiply(1 / masseJournaux))
-            );
+            journal.setVelocite(camelot.getVelocite().add(quantiteMouvementX.multiply(1 / masseJournaux)));
         }
 
+
+        //ajoute le journal lancé dans la liste de journaux
         journauxLances.add(journal);
+        dernierTir = maintenant; // on enregistre le tir
     }
 
     public double masse() {
@@ -240,10 +252,10 @@ public class MainJavaFX extends Application {
     }
 
 
-    public void modeDebogage(double positionligneCamelot, GraphicsContext context) {
+    public void modeDebogage(double x, GraphicsContext context) {
         if (debug == 1) {
             context.setFill(Color.YELLOW);
-            context.fillRect(positionligneCamelot, 0, 4, 600);
+            context.fillRect(x, 0, 4, HEIGHT);
         }
     }
 
