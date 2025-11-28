@@ -19,11 +19,11 @@ public class Mur {
     }
     public void updatePhysics(Point2D coordsCam){
         if(coordBriques.getFirst().getFirst().getX()+w<coordsCam.getX()){
-            System.out.println("Ajouter colonne!");
+
             enleverColonne();
             ajouterColonne();
         }
-        System.out.println(coordBriques);
+
 
     }
     private void enleverColonne(){

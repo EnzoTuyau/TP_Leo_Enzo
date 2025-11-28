@@ -3,7 +3,6 @@ package org.example.tp_leo_enzo;
 import javafx.geometry.Point2D;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
-import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
 
@@ -101,22 +100,21 @@ public class Camelot extends ObjetDuJeu {
             }else if (velocite.getX()<=200){
                 setVelocite(new Point2D(200, 0));
             }
+        } else if (velocite.getX() < 400) { //boucle else if pour réaccélérer
+            acceleration = new Point2D(300, acceleration.getY());
         } else if (droite) { //boucle else if pour accélérer vers la droite
             acceleration = new Point2D(+300, acceleration.getY());
-//        } else if (Math.abs(velocite.getX()) > 400) {
-//            int signe = velocite.getX() > 0 ? -1 : +1; // force opposée
-//            acceleration = new Point2D(signe * 300, acceleration.getY());
-        } else if (sauter){
+        } else if (sauter){ //boucle else if pour sauter
             velocite = new Point2D(velocite.getX(), -500);
-            acceleration = new Point2D(velocite.getX(), 1500);
+            acceleration = new Point2D(acceleration.getX(), 1500);
         } else if (pos.getY()>580-taille.getY()){
             setVelocite(new Point2D(velocite.getX(), 0));
             acceleration= new Point2D(velocite.getX(), 0);
             setPos(new Point2D(pos.getX(), 580-taille.getY()));
-        }else {
-            setVelocite(new Point2D(400, velocite.getY()));
+        }else { //boucle else pour ralentir une fois qu'on ne touche plus rien
+            double accelerationFrein = -300;
+            acceleration = new Point2D(accelerationFrein, acceleration.getY());
         }
-
         pos = pos.add(velocite.multiply(deltaTemps)); //X=X0+VxΔt
         velocite = velocite.add(acceleration.multiply(deltaTemps)); //V=V0+AxΔt
 

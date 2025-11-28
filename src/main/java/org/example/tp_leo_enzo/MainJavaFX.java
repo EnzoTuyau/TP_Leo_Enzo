@@ -7,7 +7,6 @@ import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
@@ -25,7 +24,9 @@ public class MainJavaFX extends Application {
     private boolean niveau2 = false;
     boolean changerMasse = true;
     private long conteurTemps;
+    private ArrayList<Journaux> journauxLances = new ArrayList<>();
     private ArrayList<Maison> maisons = new ArrayList<>();
+    private long dernierTir = 0;
 
     public static void main(String[] args) {
         launch(args);
@@ -121,11 +122,11 @@ public class MainJavaFX extends Application {
                 }
 
                 //lancer journaux
-                Journaux journaux = lancerJournaux(camelot, context, camera);
+                lancerJournaux(camelot);
 
                 camelot.draw(context, camera);
                 camelot.changerImg(deltaTemps);
-                updateTout(context, gauche, droite, sauter, deltaTemps, camera, camelot, journaux);
+                updateTout(context, gauche, droite, sauter, deltaTemps, camera, camelot);
 
 
 
@@ -154,45 +155,78 @@ public class MainJavaFX extends Application {
     }
     //Méthodes
 
-    public void updateTout(GraphicsContext context, boolean gauche, boolean droite, boolean sauter, double deltaTemps, Camera camera, Camelot camelot, Journaux journaux) {
+    public void updateTout(GraphicsContext context, boolean gauche, boolean droite, boolean sauter, double deltaTemps, Camera camera, Camelot camelot) {
         camelot.updatePhysique(gauche, droite, sauter, deltaTemps);
         camera.update(deltaTemps);
         double positionligneCamelot = camera.coordoEcran(camelot.getPos()).getX() - 4;
         modeDebogage(positionligneCamelot, context);
-        journaux.updatePhysique(deltaTemps);
+        // Mise à jour des journaux lancés
+        for (int i = 0; i < journauxLances.size(); i++) {
+
+            Journaux j = journauxLances.get(i);
+
+            j.updatePhysique(deltaTemps);
+            j.draw(context, camera);
+
+            // si trop loin, on supprime
+            if (j.getPos().getY() > HEIGHT + 200 || j.getPos().getX() < -500 || j.getPos().getX() > 10000) {
+                journauxLances.remove(i--);
+            }
+        }
 
 
     }
 
-    public Journaux lancerJournaux(Camelot camelot, GraphicsContext context, Camera camera) {
-        boolean shift = Input.isKeyPressed(KeyCode.SHIFT);
-        double masseJournauxNiveau = 0;
-        masseJournauxNiveau = masse();
-        Point2D quantiteMouvementZ = new Point2D(900, -900);
-        Point2D quantiteMouvementX = new Point2D(150, -1100);
+    public void lancerJournaux(Camelot camelot) {
 
-        Journaux journaux = new Journaux(camelot.getCentre(), camelot.getVelocite(), masseJournauxNiveau);
+        boolean shift = Input.isKeyPressed(KeyCode.SHIFT);
+        boolean z = Input.isKeyPressed(KeyCode.Z);
+        boolean x = Input.isKeyPressed(KeyCode.X);
+
+        // Aucune touche → rien
+        if (!z && !x) return;
+
+        // --- Empêcher tir trop rapide ---
+        long maintenant = System.nanoTime();
+        double secondesDepuisDernierTir = (maintenant - dernierTir) * 1e-9;
+
+        if (secondesDepuisDernierTir < 0.5) {
+            return; // trop tôt pour tirer
+        }
+        // ---------------------------------
+
+        dernierTir = maintenant; // on enregistre le tir
+
+        // Masse du journal (aléatoire au début du niveau)
+        double masseJournaux = masse();
+
+        // quantité de mouvement (« force »)
+        Point2D forceZ = new Point2D(900, -900);
+        Point2D forceX = new Point2D(150, -1100);
 
         if (shift) {
-            if (Input.isKeyPressed(KeyCode.Z)) {
-                quantiteMouvementZ.multiply(1.5);
-            } else if (Input.isKeyPressed(KeyCode.X)) {
-                quantiteMouvementX.multiply(1.5);
-            }
-        } else if (Input.isKeyPressed(KeyCode.Z)) {
-//            Point2D quantiteMouvement = new Point2D(masseJournauxNiveau * journaux.getVelocite().getX(), masseJournauxNiveau * journaux.getVelocite().getY());
-            journaux.setVelocite(new Point2D(camelot.getVelocite().getX() + quantiteMouvementZ.getX() / masseJournauxNiveau, camelot.getVelocite().getY() + quantiteMouvementZ.getY() / masseJournauxNiveau));
-
-        } else if (Input.isKeyPressed(KeyCode.X)) {
-            journaux.setVelocite(new Point2D(camelot.getVelocite().getX() + quantiteMouvementX.getX() / masseJournauxNiveau, camelot.getVelocite().getY() + quantiteMouvementX.getY() / masseJournauxNiveau));
-
+            if (z) forceZ = forceZ.multiply(1.5);
+            if (x) forceX = forceX.multiply(1.5);
         }
-        context.drawImage(new Image("journal.png"), camelot.getCentre().getX(), camelot.getCentre().getY());
 
+        // Centre du camelot (comme dans le pdf)
+        Point2D posDepart = camelot.getCentre();
 
+        // création du journal
+        Journaux journal = new Journaux(posDepart, camelot.getVelocite(), masseJournaux);
 
+        if (z) {
+            journal.setVelocite(
+                    camelot.getVelocite().add(forceZ.multiply(1 / masseJournaux))
+            );
+        }
+        if (x) {
+            journal.setVelocite(
+                    camelot.getVelocite().add(forceX.multiply(1 / masseJournaux))
+            );
+        }
 
-        return journaux;
+        journauxLances.add(journal);
     }
 
     public double masse() {
