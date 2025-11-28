@@ -14,7 +14,8 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import org.example.tp_leo_enzo.maison.Mur;
-
+import org.example.tp_leo_enzo.maison.Maison;
+import java.util.Random;
 import java.util.ArrayList;
 
 public class MainJavaFX extends Application {
@@ -22,8 +23,9 @@ public class MainJavaFX extends Application {
     private int debug = 0;
     private boolean niveau1 = false;
     private boolean niveau2 = false;
+    boolean changerMasse = true;
     private long conteurTemps;
-
+    private ArrayList<Maison> maisons = new ArrayList<>();
 
     public static void main(String[] args) {
         launch(args);
@@ -31,6 +33,7 @@ public class MainJavaFX extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
+        Random rnd = new Random();
         var camera = new Camera();
         var root = new Pane();
         var scene = new Scene(root, WIDTH, HEIGHT);
@@ -39,6 +42,10 @@ public class MainJavaFX extends Application {
         var context = canvas.getGraphicsContext2D();
 
         Mur mur = new Mur();
+        int addMaison1 = rnd.nextInt(100,951);
+        for (int i = 0; i < 12; i++) {
+            maisons.add(new Maison(i,HEIGHT,WIDTH,addMaison1+i*2));
+        }
 
         //création des adresses
         ArrayList<Integer> adresses = new ArrayList<>();
@@ -87,10 +94,14 @@ public class MainJavaFX extends Application {
 
                 //avancer camelot
                 //permet de savoir quand on appuie et quand on lâche une touche
-                scene.setOnKeyPressed(event -> choixDebogage(event));
+                scene.setOnKeyPressed(event -> {
+                    Input.keyPressed(event.getCode());
+                    choixDebogage(event);
+                });
                 scene.setOnKeyReleased(event -> Input.keyReleased(event.getCode()));
                 boolean gauche = false;
                 boolean droite = false;
+
                 //boucle if pour accélérer uniquement si on est au sol
                 if (camelot.getPos().getY() == 580 - 144) { //144 est la hauteur du camelot
                     gauche = Input.isKeyPressed(KeyCode.LEFT);
@@ -102,10 +113,20 @@ public class MainJavaFX extends Application {
                     sauter = Input.isKeyPressed(KeyCode.UP);
                 }
 
+                if(!maisons.isEmpty()&&maisons.get(0).getX()+1300<camera.getPositionCamera().getX()){
+                    maisons.remove(0);
+                }
+                for (int i = 0; i < maisons.size(); i++) {
+                    maisons.get(i).draw(context,camera);
+                }
+
+                //lancer journaux
+                Journaux journaux = lancerJournaux(camelot, context, camera);
 
                 camelot.draw(context, camera);
                 camelot.changerImg(deltaTemps);
-                updateTout(context, gauche, droite, sauter, deltaTemps, camera, camelot);
+                updateTout(context, gauche, droite, sauter, deltaTemps, camera, camelot, journaux);
+
 
 
 //                    if (passerniveau1==true){
@@ -131,19 +152,61 @@ public class MainJavaFX extends Application {
         primaryStage.setTitle("Animations!");
         primaryStage.show();
     }
+    //Méthodes
 
-    public void updateTout(GraphicsContext context, boolean gauche, boolean droite, boolean sauter, double deltaTemps, Camera camera, Camelot camelot) {
+    public void updateTout(GraphicsContext context, boolean gauche, boolean droite, boolean sauter, double deltaTemps, Camera camera, Camelot camelot, Journaux journaux) {
         camelot.updatePhysique(gauche, droite, sauter, deltaTemps);
         camera.update(deltaTemps);
-        double positionligneCamelot= camera.coordoEcran(camelot.getPos()).getX()-4;
+        double positionligneCamelot = camera.coordoEcran(camelot.getPos()).getX() - 4;
         modeDebogage(positionligneCamelot, context);
-
-
+        journaux.updatePhysique(deltaTemps);
 
 
     }
 
-    public void modeDebogage(double positionligneCamelot, GraphicsContext context){
+    public Journaux lancerJournaux(Camelot camelot, GraphicsContext context, Camera camera) {
+        boolean shift = Input.isKeyPressed(KeyCode.SHIFT);
+        double masseJournauxNiveau = 0;
+        masseJournauxNiveau = masse();
+        Point2D quantiteMouvementZ = new Point2D(900, -900);
+        Point2D quantiteMouvementX = new Point2D(150, -1100);
+
+        Journaux journaux = new Journaux(camelot.getCentre(), camelot.getVelocite(), masseJournauxNiveau);
+
+        if (shift) {
+            if (Input.isKeyPressed(KeyCode.Z)) {
+                quantiteMouvementZ.multiply(1.5);
+            } else if (Input.isKeyPressed(KeyCode.X)) {
+                quantiteMouvementX.multiply(1.5);
+            }
+        } else if (Input.isKeyPressed(KeyCode.Z)) {
+//            Point2D quantiteMouvement = new Point2D(masseJournauxNiveau * journaux.getVelocite().getX(), masseJournauxNiveau * journaux.getVelocite().getY());
+            journaux.setVelocite(new Point2D(camelot.getVelocite().getX() + quantiteMouvementZ.getX() / masseJournauxNiveau, camelot.getVelocite().getY() + quantiteMouvementZ.getY() / masseJournauxNiveau));
+
+        } else if (Input.isKeyPressed(KeyCode.X)) {
+            journaux.setVelocite(new Point2D(camelot.getVelocite().getX() + quantiteMouvementX.getX() / masseJournauxNiveau, camelot.getVelocite().getY() + quantiteMouvementX.getY() / masseJournauxNiveau));
+
+        }
+        context.drawImage(new Image("journal.png"), camelot.getCentre().getX(), camelot.getCentre().getY());
+
+
+
+
+        return journaux;
+    }
+
+    public double masse() {
+        Random random = new Random();
+        double masseJournauxNiveau = 1;
+        if (changerMasse) {
+            masseJournauxNiveau = random.nextDouble(1, 2);
+            changerMasse = false;
+        }
+        return masseJournauxNiveau;
+    }
+
+
+    public void modeDebogage(double positionligneCamelot, GraphicsContext context) {
         if (debug == 1) {
             context.setFill(Color.YELLOW);
             context.fillRect(positionligneCamelot, 0, 4, 600);
