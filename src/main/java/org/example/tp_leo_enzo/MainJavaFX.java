@@ -96,7 +96,6 @@ public class MainJavaFX extends Application {
 
 
                 //camera
-//                camera.setVelocite(camelot.getVelocite());
                 camera.setPositionCamera(new Point2D(camelot.getPos().getX() - 0.2 * WIDTH, 0));
 
 
@@ -263,14 +262,12 @@ public class MainJavaFX extends Application {
         return masseJournauxNiveau;
     }
 
-
     public void modeDebogage(double x, GraphicsContext context) {
         if (debug == 1) {
             context.setFill(Color.YELLOW);
             context.fillRect(x, 0, 4, HEIGHT);
         }
     }
-
 
     public void choixDebogage(KeyEvent KeyEvent) {
         switch (KeyEvent.getCode()) {
@@ -330,6 +327,21 @@ public class MainJavaFX extends Application {
 
 
 
+    }
+
+    public void testCollision(Journaux j1) {
+        if (this.enCollisionAvec(b2)) {
+            var produitScalaire = (this.velocite.subtract(b2.velocite)).dotProduct(this.position.subtract(b2.position));
+            var distanceCarre = Math.pow ((this.position.subtract(b2.position)).magnitude(),2);
+            var posDifference = this.position.subtract(b2.position);
+            var v1Apres = this.velocite.subtract(posDifference.multiply(produitScalaire/distanceCarre));
+            var v2Apres = b2.velocite.subtract(posDifference.multiply(-(produitScalaire/distanceCarre)));
+            this.velocite = v1Apres;
+            b2.velocite = v2Apres;
+
+            resoudreCollision(b2);
+
+        }
     }
 
 

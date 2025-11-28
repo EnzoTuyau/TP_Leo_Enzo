@@ -51,7 +51,7 @@ public class Fenetre extends ObjetDuJeu {
         pos = pos.add(velocite.multiply(deltaTemps));
     }
     public void verifierCollision(ArrayList<Journaux> journaux){
-        // à faire
+
     }
     public void briserFenetre(boolean abonne){
         if(abonne){
