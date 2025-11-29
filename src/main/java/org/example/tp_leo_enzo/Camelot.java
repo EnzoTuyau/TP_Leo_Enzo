@@ -44,6 +44,10 @@ public class Camelot extends ObjetDuJeu {
         this.journaux = this.journaux + 12;
     }
 
+    public void ajouter24Journaux() {
+        this.journaux = this.journaux + 24;
+    }
+
     public void ajouterArgent(int argent) {
         this.argent = this.argent + argent;
     }

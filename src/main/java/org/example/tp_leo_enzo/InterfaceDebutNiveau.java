@@ -30,6 +30,26 @@ public class InterfaceDebutNiveau {
 
         context.fillText(txt, (WIDTH - textWidth) / 2, HEIGHT / 2);
     }
+    public void setNiveau(int niveau) {
+        this.niveau = niveau;
+    }
+
+
+
+    public void interfaceGameOver(GraphicsContext context, Camelot camelot, double WIDTH, double HEIGHT) {
+        context.setFill(Color.BLACK);
+        context.fillRect(0, 0, WIDTH, HEIGHT);
+
+        context.setFont(Font.font(70));
+        context.setFill(Color.RED);
+        context.fillText("Rupture de stocks", WIDTH / 2 - 270, HEIGHT / 2 - 40);
+
+        context.setFill(Color.GREEN);
+        context.setFont(Font.font(50));
+        context.fillText("Argent collecté : " + camelot.getArgent() + "$",
+                WIDTH / 2 - 230, HEIGHT / 2 + 40);
+    }
+
 
 }
 

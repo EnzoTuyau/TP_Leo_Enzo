@@ -24,6 +24,7 @@ public class MainJavaFX extends Application {
     private int debug = 0;
     private boolean niveau1 = false;
     private boolean prochainNiveau = false;
+    private boolean gameOver=false;
     boolean changerMasse = true;
     private double conteurTemps;
     private ArrayList<Journaux> journauxLances = new ArrayList<>();
@@ -54,7 +55,6 @@ public class MainJavaFX extends Application {
         creationMaisons();
 
 
-
         //création du camelot
         Camelot camelot = new Camelot(adresseMaison);
 
@@ -73,17 +73,31 @@ public class MainJavaFX extends Application {
                 dernierTemps = maintenant;
                 //conteur de temps permet de savoir quand 3 secondes se sont écoulées dès le lancement de la première frame
                 conteurTemps += deltaTemps;
-                if (conteurTemps < 3) {
-                    if (prochainNiveau){
+                // Vérifier fin du jeu : plus de journaux + aucun sur l'écran
+                if (camelot.getJournaux() == 0 && journauxLances.isEmpty()) {
+                    if (!gameOver){
+                        conteurTemps=0;
+                        gameOver=true;
+                    }
+                    interface1.interfaceGameOver(context, camelot, WIDTH, HEIGHT);
+                    interface1.setNiveau(1);
+                    if (conteurTemps > 3) {
+                        camelot.ajouter24Journaux();
+                        conteurTemps = 0;
+                        gameOver=false;
+                    }
+
+                } else if (conteurTemps < 3) {
+                    if (prochainNiveau) {
                         adresseMaison.clear();
                         creationMaisons();
-                        camelot.setPos(new Point2D(180, 580- camelot.taille.getY()));
-                        camera.setPositionCamera(new Point2D(0,0));
+                        camelot.setPos(new Point2D(180, 580 - camelot.taille.getY()));
+                        camera.setPositionCamera(new Point2D(0, 0));
                         mur.resetMur();
                     }
                     interface1.interfaceDeNiveau(context, WIDTH, HEIGHT, prochainNiveau);
                     prochainNiveau = false;
-                    niveau1=false;
+                    niveau1 = false;
                     System.out.println(conteurTemps);
 
                 } else if (maisons.isEmpty() && !niveau1 && !prochainNiveau) {
@@ -356,7 +370,7 @@ public class MainJavaFX extends Application {
         }
     }
 
-    public void creationMaisons(){
+    public void creationMaisons() {
         Random rnd = new Random();
         //boucle for pour générer les adresse des maisons
         int addMaison1 = rnd.nextInt(100, 951);
