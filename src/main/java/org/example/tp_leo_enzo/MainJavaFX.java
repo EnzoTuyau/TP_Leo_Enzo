@@ -23,9 +23,9 @@ public class MainJavaFX extends Application {
     public static final double WIDTH = 900, HEIGHT = 580;
     private int debug = 0;
     private boolean niveau1 = false;
-    private boolean niveau2 = false;
+    private boolean prochainNiveau = false;
     boolean changerMasse = true;
-    private long conteurTemps;
+    private double conteurTemps;
     private ArrayList<Journaux> journauxLances = new ArrayList<>();
     private ArrayList<Maison> maisons = new ArrayList<>();
     private long dernierTir = 0;
@@ -37,33 +37,29 @@ public class MainJavaFX extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        Random rnd = new Random();
+
         var camera = new Camera();
         var root = new Pane();
         var scene = new Scene(root, WIDTH, HEIGHT);
         var canvas = new Canvas(WIDTH, HEIGHT);
         root.getChildren().add(canvas);
         var context = canvas.getGraphicsContext2D();
+        primaryStage.setResizable(false);
 
+
+        //création du mur
         Mur mur = new Mur();
-        int addMaison1 = rnd.nextInt(100, 951);
-        for (int i = 0; i < 12; i++) {
-            maisons.add(new Maison(i, HEIGHT, WIDTH, addMaison1 + i * 2));
-            if (maisons.get(i).isAbonne()){
-                adresseMaison.add(maisons.get(i).getAdresse());
-            }
 
-        }
+        //création maisons
+        creationMaisons();
 
-        //création des adresses
-        ArrayList<Integer> adresses = new ArrayList<>();
-        adresses.add(132);
-        adresses.add(176);
-        adresses.add(67);
+
+
         //création du camelot
-        Camelot camelot = new Camelot(adresses);
+        Camelot camelot = new Camelot(adresseMaison);
+
         //création d'une interface
-        InterfaceDebutNiveau interface1 = new InterfaceDebutNiveau(camelot);
+        InterfaceDebutNiveau interface1 = new InterfaceDebutNiveau();
 
 
         var timer = new AnimationTimer() {
@@ -71,99 +67,109 @@ public class MainJavaFX extends Application {
 
             @Override
             public void handle(long maintenant) {
+
                 //deltaTemps est le temps écoulé entre 2 frames
-                double deltaTemps = (maintenant - dernierTemps) * 1e-9;
-
-                //conteur de temps permet de savoir quand 3 secondes se sont écoulées dès le lancement de la première frame
-                conteurTemps += dernierTemps;
-                //boucle if qui permet d'afficher l'interface du niveau 1 jusqu'à temps qu'on le réussisse
-//                if (conteurTemps <= 3 || (conteurTemps<3 && !niveau1)) {
-                //interface du jeu
-                context.setFill(Color.BLACK);
-                context.fillRect(0, 0, WIDTH, HEIGHT);
-                interface1.interfaceNiveau(deltaTemps);
-//                } else if ((!niveau1 || !niveau2) && conteurTemps > 3) {
-
-
-                // Arrière-plan des niveaux (maison)
-                for (int i = 0; i < mur.getCoordBriques().size(); i++) {
-                    for (int j = 0; j < mur.getCoordBriques().get(i).size(); j++) {
-                        Point2D coordsBriqueCam = camera.coordoEcran(new Point2D(mur.getCoordBriques().get(i).get(j).getX(), mur.getCoordBriques().get(i).get(j).getY()));
-                        context.drawImage(new Image("brique.png"), coordsBriqueCam.getX(), coordsBriqueCam.getY());
-                    }
-                }
-                mur.updatePhysics(camera.getPositionCamera());
-
-
-                //camera
-                camera.setPositionCamera(new Point2D(camelot.getPos().getX() - 0.2 * WIDTH, 0));
-
-
-                //avancer camelot
-                //permet de savoir quand on appuie et quand on lâche une touche
-                scene.setOnKeyPressed(event -> {
-                    Input.keyPressed(event.getCode());
-                    choixDebogage(event);
-                });
-                scene.setOnKeyReleased(event -> Input.keyReleased(event.getCode()));
-                boolean gauche = false;
-                boolean droite = false;
-
-                //boucle if pour accélérer uniquement si on est au sol
-                if (camelot.getPos().getY() == 580 - 144) { //144 est la hauteur du camelot
-                    gauche = Input.isKeyPressed(KeyCode.LEFT);
-                    droite = Input.isKeyPressed(KeyCode.RIGHT);
-                }
-                boolean sauter = false;
-                //boucle if pour ne pas sauter dans les aires
-                if (camelot.getPos().getY() == 580 - 144) { //144 est la hauteur du camelot
-                    sauter = Input.isKeyPressed(KeyCode.UP);
-                }
-
-                if (!maisons.isEmpty() && maisons.get(0).getX() + 1300 < camera.getPositionCamera().getX()) {
-                    maisons.remove(0);
-                }
-                for (int i = 0; i < maisons.size(); i++) {
-                    maisons.get(i).draw(context, camera);
-                }
-
-                //lancer journaux
-                if(camelot.getJournaux()>0) {
-                    verifierLancerJournaux(camelot);
-                }
-
-                double positionligneCamelot = camera.coordoEcran(camelot.getPos()).getX() - 4;
-                modeDebogage(positionligneCamelot, context);
-                modeDebogage(positionligneCamelot, context);
-
-                interfaceDuHaut(context, camelot);
-
-                camelot.draw(context, camera);
-                camelot.changerImg(deltaTemps);
-                updateTout(context, gauche, droite, sauter, deltaTemps, camera, camelot);
-
-
-//                    if (passerniveau1==true){
-//                        niveau1=true;
-//                    }
-
-
-//                } else if (niveau1==true && maintenant <= 3) {
-//
-//                } else
-
-
-                //modes de débogage différent
-
-
+                double deltaTemps = (maintenant - dernierTemps) * 1e-9; // en secondes
                 dernierTemps = maintenant;
+                //conteur de temps permet de savoir quand 3 secondes se sont écoulées dès le lancement de la première frame
+                conteurTemps += deltaTemps;
+                if (conteurTemps < 3) {
+                    if (prochainNiveau){
+                        adresseMaison.clear();
+                        creationMaisons();
+                        camelot.setPos(new Point2D(180, 580- camelot.taille.getY()));
+                        camera.setPositionCamera(new Point2D(0,0));
+                        mur.resetMur();
+                    }
+                    interface1.interfaceDeNiveau(context, WIDTH, HEIGHT, prochainNiveau);
+                    prochainNiveau = false;
+                    niveau1=false;
+                    System.out.println(conteurTemps);
+
+                } else if (maisons.isEmpty() && !niveau1 && !prochainNiveau) {
+                    niveau1 = true;
+                    camelot.ajouter12Journaux();
+                } else if (!niveau1 && (conteurTemps > 3 && (!journauxLances.isEmpty() || camelot.getJournaux() > 0))) { //boucle if qui permet d'afficher l'interface du niveau 1 jusqu'à temps qu'on le réussisse
+                    if (!maisons.isEmpty()) {
+                        context.setFill(Color.BLACK);
+                        context.fillRect(0, 0, WIDTH, HEIGHT);
+                        // Arrière-plan des niveaux (maison)
+                        for (int i = 0; i < mur.getCoordBriques().size(); i++) {
+                            for (int j = 0; j < mur.getCoordBriques().get(i).size(); j++) {
+                                Point2D coordsBriqueCam = camera.coordoEcran(new Point2D(mur.getCoordBriques().get(i).get(j).getX(), mur.getCoordBriques().get(i).get(j).getY()));
+                                context.drawImage(new Image("brique.png"), coordsBriqueCam.getX(), coordsBriqueCam.getY());
+                            }
+                        }
+                        mur.updatePhysics(camera.getPositionCamera());
+
+
+                        //camera
+                        camera.setPositionCamera(new Point2D(camelot.getPos().getX() - 0.2 * WIDTH, 0));
+
+
+                        //avancer camelot
+                        //permet de savoir quand on appuie et quand on lâche une touche
+                        scene.setOnKeyPressed(event -> {
+                            Input.keyPressed(event.getCode());
+                            choixDebogage(event, primaryStage);
+                        });
+                        scene.setOnKeyReleased(event -> Input.keyReleased(event.getCode()));
+                        boolean gauche = false;
+                        boolean droite = false;
+
+                        //boucle if pour accélérer uniquement si on est au sol
+                        if (camelot.getPos().getY() == 580 - 144) { //144 est la hauteur du camelot
+                            gauche = Input.isKeyPressed(KeyCode.LEFT);
+                            droite = Input.isKeyPressed(KeyCode.RIGHT);
+                        }
+                        boolean sauter = false;
+                        //boucle if pour ne pas sauter dans les aires
+                        if (camelot.getPos().getY() == 580 - 144) { //144 est la hauteur du camelot
+                            sauter = Input.isKeyPressed(KeyCode.UP);
+                        }
+
+                        if (!maisons.isEmpty() && maisons.get(0).getX() + 1300 < camera.getPositionCamera().getX()) {
+                            maisons.remove(0);
+                        }
+                        for (int i = 0; i < maisons.size(); i++) {
+                            maisons.get(i).draw(context, camera);
+                        }
+
+                        //boucle if pour passer le niveau une fois que le camelot a parcouru toutes les maisons
+
+
+                        //lancer journaux
+                        if (camelot.getJournaux() > 0) {
+                            verifierLancerJournaux(camelot);
+                        }
+
+                        //ligne jaune derrière le camelot
+                        double positionligneCamelot = camera.coordoEcran(camelot.getPos()).getX() - 4;
+                        modeDebogage(positionligneCamelot, context);
+
+                        //interface bande du haut
+                        interfaceDuHaut(context, camelot);
+
+                        //dessiner et faire avancer le camelot
+                        camelot.draw(context, camera);
+                        camelot.changerImg(deltaTemps);
+
+                        //update tout ce qui peut avoir devant la caméra
+                        updateTout(context, gauche, droite, sauter, deltaTemps, camera, camelot);
+
+                    }
+                } else if (niveau1) {
+                    niveau1 = false;
+                    prochainNiveau = true;
+                    conteurTemps = 0;
+                }
             }
         };
         timer.start();
 
 
         primaryStage.setScene(scene);
-        primaryStage.setTitle("Animations!");
+        primaryStage.setTitle("Camelot à vélo");
         primaryStage.show();
     }
     //Méthodes
@@ -185,13 +191,12 @@ public class MainJavaFX extends Application {
 
             //boucle if qui vérifie si les journaux dépassent de la caméra puis les enlève
             if (journalLance.getPos().getY() > HEIGHT || //dépasse par le bas
-                    journalLance.getPos().getX() + journalLance.taille.getX() < positionXCamera  || // derrière la caméra
+                    journalLance.getPos().getX() + journalLance.taille.getX() < positionXCamera || // derrière la caméra
                     journalLance.getPos().getX() > positionXCamera + WIDTH // trop loin devant
             ) {
                 journauxLances.remove(i--);
             }
         }
-
 
 
     }
@@ -250,6 +255,7 @@ public class MainJavaFX extends Application {
         journauxLances.add(journal);
         camelot.lancerJournal();
         dernierTir = maintenant; // on enregistre le tir
+        collision();
     }
 
     public double masse() {
@@ -269,7 +275,7 @@ public class MainJavaFX extends Application {
         }
     }
 
-    public void choixDebogage(KeyEvent KeyEvent) {
+    public void choixDebogage(KeyEvent KeyEvent, Stage stage) {
         switch (KeyEvent.getCode()) {
             case D:
                 if (debug == 1) {
@@ -301,6 +307,8 @@ public class MainJavaFX extends Application {
                     ;
                 }
                 break;
+            case ESCAPE:
+                stage.close();
             default:
                 Input.keyPressed(KeyEvent.getCode());
                 break;
@@ -309,40 +317,58 @@ public class MainJavaFX extends Application {
 
     public void interfaceDuHaut(GraphicsContext context, Camelot camelot) {
 
-        context.setFill(new Color(0,0,0,0.5));
-        context.fillRect(0,0,WIDTH, 50);
+        context.setFill(new Color(0, 0, 0, 0.5));
+        context.fillRect(0, 0, WIDTH, 50);
         context.setFill(Color.WHITE);
-        context.drawImage(new Image("icone-journal.png"),5,9);
+        context.drawImage(new Image("icone-journal.png"), 5, 9);
         context.setFont(Font.font(28));
-        context.fillText(camelot.getJournaux()+"", 50, 35);
+        context.fillText(camelot.getJournaux() + "", 50, 35);
         context.drawImage(new Image("icone-dollar.png"), 100, 9);
-        context.fillText(camelot.getArgent()+"", 160,35);
-        context.drawImage(new Image("icone-maison.png"), 200,9);
-        int positionXNumeroMaisonAbonne=250;
+        context.fillText(camelot.getArgent() + "", 160, 35);
+        context.drawImage(new Image("icone-maison.png"), 200, 9);
+        int positionXNumeroMaisonAbonne = 250;
 
         for (int i = 0; i < adresseMaison.size(); i++) {
-            context.fillText(adresseMaison.get(i)+"", positionXNumeroMaisonAbonne+53*i, 35);
+            context.fillText(adresseMaison.get(i) + "", positionXNumeroMaisonAbonne + 53 * i, 35);
 
         }
 
 
-
     }
 
-    public void testCollision(Journaux j1) {
-        if (this.enCollisionAvec(b2)) {
-            var produitScalaire = (this.velocite.subtract(b2.velocite)).dotProduct(this.position.subtract(b2.position));
-            var distanceCarre = Math.pow ((this.position.subtract(b2.position)).magnitude(),2);
-            var posDifference = this.position.subtract(b2.position);
-            var v1Apres = this.velocite.subtract(posDifference.multiply(produitScalaire/distanceCarre));
-            var v2Apres = b2.velocite.subtract(posDifference.multiply(-(produitScalaire/distanceCarre)));
-            this.velocite = v1Apres;
-            b2.velocite = v2Apres;
+    public void collision() {
+        boolean collison = true;
+        for (int i = 0; i < journauxLances.size(); i++) {
+            for (int j = 0; j < maisons.size(); j++) {
+                //boucle if pour verifier si le journal est à gauche de la boite aux lettres
+                if (journauxLances.get(i).getPos().getX() + journauxLances.get(i).taille.getX() < maisons.get(j).getBoiteAuxLettres().getGauche()) {
+                    collison = false;
+                } else if (journauxLances.get(i).getPos().getX() > maisons.get(j).getBoiteAuxLettres().getDroite()) { //boucle else if pour vérifier si le journal est à droite de la boite aux lettres
+                    collison = false;
+                } else if (journauxLances.get(i).getPos().getY() + journauxLances.get(i).taille.getY() > maisons.get(j).getBoiteAuxLettres().getHaut()) { //boucle else if pour vérifier si le journal est en haut de la boite aux lettres
+                    collison = false;
+                } else if (journauxLances.get(i).getPos().getY() < maisons.get(j).getBoiteAuxLettres().getBas()) { //boucle else if pour vérifier si le journal est en dessous de la boite aux lettres
+                    collison = false;
+                }
+            }
 
-            resoudreCollision(b2);
 
         }
     }
 
+    public void creationMaisons(){
+        Random rnd = new Random();
+        //boucle for pour générer les adresse des maisons
+        int addMaison1 = rnd.nextInt(100, 951);
+        for (int i = 0; i < 12; i++) {
+            maisons.add(new Maison(i, HEIGHT, WIDTH, addMaison1 + i * 2));
+            //boucle if pour mettre dans le ArrayList d'adresse de maisons abonnées les maisons abonnées
+            if (maisons.get(i).isAbonne()) {
+                adresseMaison.add(maisons.get(i).getAdresse());
+            }
+        }
+    }
 
 }
+
+

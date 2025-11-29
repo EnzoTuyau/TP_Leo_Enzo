@@ -39,6 +39,10 @@ public class Maison {
         this.abonne= rnd.nextBoolean();
     }
 
+    public BoiteAuxLettres getBoiteAuxLettres() {
+        return boiteAuxLettres;
+    }
+
     public void draw(GraphicsContext context, Camera camera){
         porte.draw(context,camera);
         boiteAuxLettres.draw(context,camera);

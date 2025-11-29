@@ -9,13 +9,7 @@ public class Mur {
     final int w = 192;
     final int h = 96;
     public Mur(){
-        coordBriques = new ArrayList<>();
-        for (int i = 0; i < 6; i++) {
-            coordBriques.add(new ArrayList<>());
-            for (int j = 0; j < 7; j++) {
-                coordBriques.get(i).add(new Point2D(i*w,j*h));
-            }
-        }
+        creerMur();
     }
     public void updatePhysics(Point2D coordsCam){
         if(coordBriques.getFirst().getFirst().getX()+w<coordsCam.getX()){
@@ -39,5 +33,19 @@ public class Mur {
 
     public ArrayList<ArrayList<Point2D>> getCoordBriques() {
         return coordBriques;
+    }
+
+    public void resetMur() {
+        creerMur();
+    }
+
+    public void creerMur(){
+        coordBriques = new ArrayList<>();
+        for (int i = 0; i < 6; i++) {
+            coordBriques.add(new ArrayList<>());
+            for (int j = 0; j < 7; j++) {
+                coordBriques.get(i).add(new Point2D(i*w,j*h));
+            }
+        }
     }
 }

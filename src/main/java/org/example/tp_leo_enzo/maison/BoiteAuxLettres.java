@@ -48,9 +48,11 @@ public class BoiteAuxLettres extends ObjetDuJeu {
         pos = pos.add(velocite.multiply(deltaTemps));
     }
     public void verifierCollision(ArrayList<Journaux> journaux){
-        // à faire
+        for (int i = 0; i < journaux.size(); i++) {
+
+        }
     }
-    public void changerBoite(boolean abonne){
+    public void changerBoite (boolean abonne){
         if(abonne){
             couleurBoite = "vert";
         }else{
