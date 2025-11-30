@@ -4,6 +4,7 @@ import javafx.geometry.Point2D;
 import javafx.scene.canvas.GraphicsContext;
 import org.example.tp_leo_enzo.Camera;
 import org.example.tp_leo_enzo.Journaux;
+import org.example.tp_leo_enzo.Camelot;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -36,13 +37,13 @@ public class Maison {
         Random rnd = new Random();
         posMaisonX = (nbMaison+1)*1300;
         porte = new Porte(new Point2D(posMaisonX,HEIGHT-195),adresse);
-        boiteAuxLettres = new BoiteAuxLettres(new Point2D(posMaisonX+200,rnd.nextDouble(0.3,0.8)*HEIGHT));
+        this.abonne=rnd.nextBoolean();
+        boiteAuxLettres = new BoiteAuxLettres(new Point2D(posMaisonX+200,rnd.nextDouble(0.3,0.8)*HEIGHT),abonne);
         nbFenetres = rnd.nextInt(0,3);
         for (int i = 0; i < nbFenetres; i++) {
-            fenetres.add(new Fenetre(new Point2D(posMaisonX+300*(i+1),50)));
+            fenetres.add(new Fenetre(new Point2D(posMaisonX+300*(i+1),50),abonne));
         }
         this.adresse=adresse;
-        this.abonne= rnd.nextBoolean();
     }
 
     public BoiteAuxLettres getBoiteAuxLettres() {
@@ -57,7 +58,11 @@ public class Maison {
         }
     }
 
-    public void verifierCollisionsFenetres(){
+    public void verifierCollisions(Journaux journal,Camelot camelot){
+        for (int i = 0; i < fenetres.size(); i++) {
+            this.fenetres.get(i).verifierCollision(journal,camelot);
+        }
+        boiteAuxLettres.verifierCollisions(journal,camelot);
     }
 
     public double getX(){

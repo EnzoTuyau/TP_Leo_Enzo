@@ -174,10 +174,10 @@ public class MainJavaFX extends Application {
                         for (int i = 0; i < journauxLances.size(); i++) {
                             journauxLances.get(i).draw(context, camera);
                         }
-
+                        collisions(maisons,journauxLances,camelot);
                         //update tout ce qui peut avoir devant la caméra
                         updateTout(context, gauche, droite, sauter, deltaTemps, camera, camelot);
-
+                        collisions(maisons,journauxLances,camelot);
                     }
                 } else if (niveau1) {
                     niveau1 = false;
@@ -393,7 +393,13 @@ public class MainJavaFX extends Application {
             }
         }
     }
-
+    public void collisions(ArrayList<Maison> maisons, ArrayList<Journaux> journauxLances, Camelot camelot){
+            for (int i = 0; i < journauxLances.size(); i++) {
+                for (int j = 0; j < maisons.size(); j++) {
+                    maisons.get(j).verifierCollisions(journauxLances.get(i),camelot);
+                }
+            }
+        }
 }
 
 
