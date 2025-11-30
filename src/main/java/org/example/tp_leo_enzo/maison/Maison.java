@@ -18,8 +18,14 @@ public class Maison {
     private final double posMaisonX;
     private boolean abonne;
 
+
+
     public boolean isAbonne() {
         return abonne;
+    }
+
+    public ArrayList<Fenetre> getFenetres() {
+        return fenetres;
     }
 
     public int getAdresse() {
@@ -51,10 +57,7 @@ public class Maison {
         }
     }
 
-    public void verifierCollisionsFenetres(ArrayList<Journaux> journaux){
-        for (int i = 0; i < fenetres.size(); i++) {
-            fenetres.get(i).verifierCollision(journaux);
-        }
+    public void verifierCollisionsFenetres(){
     }
 
     public double getX(){

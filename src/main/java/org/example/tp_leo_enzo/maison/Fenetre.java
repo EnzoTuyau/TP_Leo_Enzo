@@ -15,24 +15,24 @@ public class Fenetre extends ObjetDuJeu {
     private int adresse;
     private String etatFenetre = "defaut";
 
-    public Fenetre(Point2D position){
+    public Fenetre(Point2D position) {
         //159x130
         pos = position;
-        taille = position.add(new Point2D(159,130));
+        taille = position.add(new Point2D(159, 130));
     }
 
     @Override
     protected void draw(GraphicsContext context, Camera camera) {
         Point2D posCam = camera.coordoEcran(pos);
-        switch(etatFenetre){
+        switch (etatFenetre) {
             case "defaut":
-                context.drawImage(new Image("fenetre.png"),posCam.getX(),posCam.getY());
+                context.drawImage(new Image("fenetre.png"), posCam.getX(), posCam.getY());
                 break;
             case "brise vert":
-                context.drawImage(new Image("fenetre-brisee-vert.png"),posCam.getX(),posCam.getY());
+                context.drawImage(new Image("fenetre-brisee-vert.png"), posCam.getX(), posCam.getY());
                 break;
             case "brise rouge":
-                context.drawImage(new Image("fenetre-brisee-rouge.png"),posCam.getX(),posCam.getY());
+                context.drawImage(new Image("fenetre-brisee-rouge.png"), posCam.getX(), posCam.getY());
                 break;
         }
     }
@@ -50,13 +50,11 @@ public class Fenetre extends ObjetDuJeu {
         velocite = velocite.add(acceleration.multiply(deltaTemps));
         pos = pos.add(velocite.multiply(deltaTemps));
     }
-    public void verifierCollision(ArrayList<Journaux> journaux){
 
-    }
-    public void briserFenetre(boolean abonne){
-        if(abonne){
+    public void briserFenetre(boolean abonne) {
+        if (abonne) {
             etatFenetre = "brise vert";
-        }else{
+        } else {
             etatFenetre = "brise rouge";
         }
     }

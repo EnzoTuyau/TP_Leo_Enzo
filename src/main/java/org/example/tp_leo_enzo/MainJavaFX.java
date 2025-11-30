@@ -13,6 +13,8 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
+import org.example.tp_leo_enzo.maison.BoiteAuxLettres;
+import org.example.tp_leo_enzo.maison.Fenetre;
 import org.example.tp_leo_enzo.maison.Mur;
 import org.example.tp_leo_enzo.maison.Maison;
 
@@ -159,7 +161,7 @@ public class MainJavaFX extends Application {
 
                         //ligne jaune derrière le camelot
                         double positionligneCamelot = camera.coordoEcran(camelot.getPos()).getX() - 4;
-                        modeDebogage(positionligneCamelot, context);
+                        modeDebogage(positionligneCamelot, context, camera);
 
                         //interface bande du haut
                         interfaceDuHaut(context, camelot);
@@ -282,11 +284,39 @@ public class MainJavaFX extends Application {
         return masseJournauxNiveau;
     }
 
-    public void modeDebogage(double posX, GraphicsContext context) {
+    public void modeDebogage(double posX, GraphicsContext context, Camera camera) {
         if (debug == 1) {
+
             context.setFill(Color.YELLOW);
             context.fillRect(posX, 0, 4, HEIGHT);
-        } else if (debug==2) {
+            if (debug != 1) return; // si la touche D est m'aintenue enfoncé on quitte la méthode
+
+            context.setStroke(Color.YELLOW);
+            context.setLineWidth(2);
+
+            // boucle for pour prendre les boites aux lettres et fenêtres de chaque maison
+            for (Maison maison : maisons) {
+
+                // Boite aux lettres
+                BoiteAuxLettres boiteStroke = maison.getBoiteAuxLettres();
+                Point2D posBStroke = camera.coordoEcran(new Point2D(boiteStroke.getGauche(), boiteStroke.getHaut()));
+                context.strokeRect(posBStroke.getX(), posBStroke.getY(),81, 76);
+
+                // boucle for pour les fenêtres
+                for (Fenetre f : maison.getFenetres()) {
+                    Point2D posFStroke = camera.coordoEcran(new Point2D(f.getGauche(), f.getHaut()));
+                    context.strokeRect(posFStroke.getX(), posFStroke.getY(), 159, 130);
+                }
+
+            }
+
+            // boucle for pour les journaux
+            for (Journaux j : journauxLances) {
+                Point2D posJ = camera.coordoEcran(new Point2D(j.getGauche(), j.getHaut()));
+                context.strokeRect(posJ.getX(), posJ.getY(),
+                        j.getDroite() - j.getGauche(),
+                        j.getBas() - j.getHaut());
+            }
 
         }
     }
@@ -346,15 +376,6 @@ public class MainJavaFX extends Application {
         for (int i = 0; i < journauxLances.size(); i++) {
             for (int j = 0; j < maisons.size(); j++) {
                 //boucle if pour verifier si le journal est à gauche de la boite aux lettres
-                if (journauxLances.get(i).getPos().getX() + journauxLances.get(i).taille.getX() < maisons.get(j).getBoiteAuxLettres().getGauche()) {
-                    collison = false;
-                } else if (journauxLances.get(i).getPos().getX() > maisons.get(j).getBoiteAuxLettres().getDroite()) { //boucle else if pour vérifier si le journal est à droite de la boite aux lettres
-                    collison = false;
-                } else if (journauxLances.get(i).getPos().getY() + journauxLances.get(i).taille.getY() > maisons.get(j).getBoiteAuxLettres().getHaut()) { //boucle else if pour vérifier si le journal est en haut de la boite aux lettres
-                    collison = false;
-                } else if (journauxLances.get(i).getPos().getY() < maisons.get(j).getBoiteAuxLettres().getBas()) { //boucle else if pour vérifier si le journal est en dessous de la boite aux lettres
-                    collison = false;
-                }
             }
 
 
