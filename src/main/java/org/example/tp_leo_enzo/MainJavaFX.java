@@ -73,7 +73,7 @@ public class MainJavaFX extends Application {
                 dernierTemps = maintenant;
                 //conteur de temps permet de savoir quand 3 secondes se sont écoulées dès le lancement de la première frame
                 conteurTemps += deltaTemps;
-                // Vérifier fin du jeu : plus de journaux + aucun sur l'écran
+                // Vérifier plus de journaux et aucun sur l'écran pour afficher la rupture de stocks
                 if (camelot.getJournaux() == 0 && journauxLances.isEmpty()) {
                     if (!gameOver){
                         conteurTemps=0;
@@ -88,13 +88,13 @@ public class MainJavaFX extends Application {
                     }
 
                 } else if (conteurTemps < 3) {
-                    if (prochainNiveau) {
                         adresseMaison.clear();
+                        maisons.clear();
                         creationMaisons();
                         camelot.setPos(new Point2D(180, 580 - camelot.taille.getY()));
                         camera.setPositionCamera(new Point2D(0, 0));
                         mur.resetMur();
-                    }
+
                     interface1.interfaceDeNiveau(context, WIDTH, HEIGHT, prochainNiveau);
                     prochainNiveau = false;
                     niveau1 = false;
@@ -125,7 +125,7 @@ public class MainJavaFX extends Application {
                         //permet de savoir quand on appuie et quand on lâche une touche
                         scene.setOnKeyPressed(event -> {
                             Input.keyPressed(event.getCode());
-                            choixDebogage(event, primaryStage);
+                            choixDebogage(event, primaryStage, camelot, interface1, context);
                         });
                         scene.setOnKeyReleased(event -> Input.keyReleased(event.getCode()));
                         boolean gauche = false;
@@ -282,14 +282,16 @@ public class MainJavaFX extends Application {
         return masseJournauxNiveau;
     }
 
-    public void modeDebogage(double x, GraphicsContext context) {
+    public void modeDebogage(double posX, GraphicsContext context) {
         if (debug == 1) {
             context.setFill(Color.YELLOW);
-            context.fillRect(x, 0, 4, HEIGHT);
+            context.fillRect(posX, 0, 4, HEIGHT);
+        } else if (debug==2) {
+
         }
     }
 
-    public void choixDebogage(KeyEvent KeyEvent, Stage stage) {
+    public void choixDebogage(KeyEvent KeyEvent, Stage stage, Camelot camelot, InterfaceDebutNiveau interface1, GraphicsContext context) {
         switch (KeyEvent.getCode()) {
             case D:
                 if (debug == 1) {
@@ -299,27 +301,15 @@ public class MainJavaFX extends Application {
                 }
                 break;
             case Q:
-                if (debug == 2) {
-                    debug = 0;
-                } else {
-                    debug = 2;
-                }
+                camelot.ajouter10Journaux();
                 break;
             case K:
-
-                if (debug == 3) {
-                    debug = 0;
-                } else {
-                    debug = 3;
-                }
+                camelot.viderJournaux();
                 break;
             case L:
-                if (debug == 4) {
-                    debug = 0;
-                } else {
-                    debug = 4;
-                    ;
-                }
+                boolean passerNiveau= true;
+                interface1.interfaceDeNiveau(context, WIDTH, HEIGHT, passerNiveau);
+                conteurTemps=0;
                 break;
             case ESCAPE:
                 stage.close();
