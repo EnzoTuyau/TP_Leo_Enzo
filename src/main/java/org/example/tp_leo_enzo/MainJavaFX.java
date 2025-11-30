@@ -170,6 +170,11 @@ public class MainJavaFX extends Application {
                         camelot.draw(context, camera);
                         camelot.changerImg(deltaTemps);
 
+                        //boucle for pour dessiner les journaux dans les airs
+                        for (int i = 0; i < journauxLances.size(); i++) {
+                            journauxLances.get(i).draw(context, camera);
+                        }
+
                         //update tout ce qui peut avoir devant la caméra
                         updateTout(context, gauche, droite, sauter, deltaTemps, camera, camelot);
 
@@ -192,16 +197,12 @@ public class MainJavaFX extends Application {
 
     public void updateTout(GraphicsContext context, boolean gauche, boolean droite, boolean sauter, double deltaTemps, Camera camera, Camelot camelot) {
         camelot.updatePhysique(gauche, droite, sauter, deltaTemps);
-        camera.update(deltaTemps);
-
 
         // met à jour tous les journaux qui sont lancés
         for (int i = 0; i < journauxLances.size(); i++) {
 
             Journaux journalLance = journauxLances.get(i);
-
             journalLance.updatePhysique(deltaTemps);
-            journalLance.draw(context, camera);
 
             double positionXCamera = camera.getPositionCamera().getX();
 
@@ -213,7 +214,7 @@ public class MainJavaFX extends Application {
                 journauxLances.remove(i--);
             }
         }
-
+        camera.update(deltaTemps);
 
     }
 
@@ -313,9 +314,7 @@ public class MainJavaFX extends Application {
             // boucle for pour les journaux
             for (Journaux j : journauxLances) {
                 Point2D posJ = camera.coordoEcran(new Point2D(j.getGauche(), j.getHaut()));
-                context.strokeRect(posJ.getX(), posJ.getY(),
-                        j.getDroite() - j.getGauche(),
-                        j.getBas() - j.getHaut());
+                context.strokeRect(posJ.getX(), posJ.getY(),52,31);
             }
 
         }
