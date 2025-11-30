@@ -6,6 +6,7 @@ import javafx.scene.image.Image;
 import org.example.tp_leo_enzo.Camera;
 import org.example.tp_leo_enzo.Journaux;
 import org.example.tp_leo_enzo.ObjetDuJeu;
+import org.example.tp_leo_enzo.Camelot;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -14,11 +15,14 @@ public class Fenetre extends ObjetDuJeu {
 
     private int adresse;
     private String etatFenetre = "defaut";
+    private boolean abonne;
+    private boolean utilise;
 
-    public Fenetre(Point2D position) {
-        //159x130
+    public Fenetre(Point2D position,boolean abonne) {
         pos = position;
-        taille = position.add(new Point2D(159, 130));
+        taille = new Point2D(159, 130);
+        this.abonne = abonne;
+        this.utilise = false;
     }
 
     @Override
@@ -51,11 +55,25 @@ public class Fenetre extends ObjetDuJeu {
         pos = pos.add(velocite.multiply(deltaTemps));
     }
 
-    public void briserFenetre(boolean abonne) {
-        if (abonne) {
-            etatFenetre = "brise vert";
-        } else {
-            etatFenetre = "brise rouge";
+    public void verifierCollision(Journaux journal,Camelot camelot){
+        if(!(this.getDroite()<journal.getGauche()||
+        journal.getDroite()<this.getGauche()||
+        this.getBas()<journal.getHaut()||
+        journal.getBas()<this.getHaut())){
+            this.briserFenetre(camelot);
+        }
+    }
+
+    private void briserFenetre(Camelot camelot) {
+        if(!utilise) {
+            if (abonne) {
+                camelot.ajouterArgent(-2);
+                etatFenetre = "brise rouge";
+            } else {
+                camelot.ajouterArgent(2);
+                etatFenetre = "brise vert";
+            }
+            utilise=true;
         }
     }
 

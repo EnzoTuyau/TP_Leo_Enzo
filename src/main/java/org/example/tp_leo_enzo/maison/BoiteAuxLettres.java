@@ -6,6 +6,7 @@ import javafx.scene.image.Image;
 import org.example.tp_leo_enzo.Camera;
 import org.example.tp_leo_enzo.Journaux;
 import org.example.tp_leo_enzo.ObjetDuJeu;
+import org.example.tp_leo_enzo.Camelot;
 
 import java.util.ArrayList;
 
@@ -13,9 +14,14 @@ public class BoiteAuxLettres extends ObjetDuJeu {
 
     private int adresse;
     private String couleurBoite = "defaut";
+    private boolean abonne;
+    private boolean utilise;
 
-    public BoiteAuxLettres(Point2D position){
+    public BoiteAuxLettres(Point2D position,boolean abonne){
         pos = position;
+        this.abonne = abonne;
+        taille = new Point2D(52, 31);
+        utilise = false;
     }
 
     @Override
@@ -47,16 +53,23 @@ public class BoiteAuxLettres extends ObjetDuJeu {
         velocite = velocite.add(acceleration.multiply(deltaTemps));
         pos = pos.add(velocite.multiply(deltaTemps));
     }
-    public void verifierCollision(ArrayList<Journaux> journaux){
-        for (int i = 0; i < journaux.size(); i++) {
-
+    public void verifierCollisions(Journaux journal, Camelot camelot){
+        if(!(this.getDroite()<journal.getGauche()||
+                journal.getDroite()<this.getGauche()||
+                this.getBas()<journal.getHaut()||
+                journal.getBas()<this.getHaut())){
+            this.changerBoite(camelot);
         }
     }
-    public void changerBoite (boolean abonne){
-        if(abonne){
-            couleurBoite = "vert";
-        }else{
-            couleurBoite = "rouge";
+    public void changerBoite(Camelot camelot) {
+        if (!utilise) {
+            if (abonne) {
+                couleurBoite = "vert";
+                camelot.ajouterArgent(1);
+            } else {
+                couleurBoite = "rouge";
+            }
+            utilise=true;
         }
     }
 }
