@@ -308,6 +308,7 @@ public class MainJavaFX extends Application {
                 break;
             case L:
                 boolean passerNiveau= true;
+                camelot.ajouter12Journaux();
                 interface1.interfaceDeNiveau(context, WIDTH, HEIGHT, passerNiveau);
                 conteurTemps=0;
                 break;
