@@ -58,11 +58,16 @@ public class Maison {
         }
     }
 
-    public void verifierCollisions(Journaux journal,Camelot camelot){
+    public boolean verifierCollisions(Journaux journal,Camelot camelot){
+        boolean collision = false;
         for (int i = 0; i < fenetres.size(); i++) {
-            this.fenetres.get(i).verifierCollision(journal,camelot);
+            collision=this.fenetres.get(i).verifierCollision(journal,camelot);
+            if (collision){
+                return collision;
+            }
         }
-        boiteAuxLettres.verifierCollisions(journal,camelot);
+        collision=boiteAuxLettres.verifierCollisions(journal,camelot);
+        return collision;
     }
 
     public double getX(){

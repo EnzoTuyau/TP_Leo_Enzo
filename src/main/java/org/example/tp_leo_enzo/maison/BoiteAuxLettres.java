@@ -53,13 +53,16 @@ public class BoiteAuxLettres extends ObjetDuJeu {
         velocite = velocite.add(acceleration.multiply(deltaTemps));
         pos = pos.add(velocite.multiply(deltaTemps));
     }
-    public void verifierCollisions(Journaux journal, Camelot camelot){
+    public boolean verifierCollisions(Journaux journal, Camelot camelot){
+        boolean collision=false;
         if(!(this.getDroite()<journal.getGauche()||
                 journal.getDroite()<this.getGauche()||
                 this.getBas()<journal.getHaut()||
                 journal.getBas()<this.getHaut())){
             this.changerBoite(camelot);
+            collision=true;
         }
+        return collision;
     }
     public void changerBoite(Camelot camelot) {
         if (!utilise) {

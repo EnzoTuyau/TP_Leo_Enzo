@@ -55,13 +55,16 @@ public class Fenetre extends ObjetDuJeu {
         pos = pos.add(velocite.multiply(deltaTemps));
     }
 
-    public void verifierCollision(Journaux journal,Camelot camelot){
+    public boolean verifierCollision(Journaux journal,Camelot camelot){
+        boolean collision= false;
         if(!(this.getDroite()<journal.getGauche()||
         journal.getDroite()<this.getGauche()||
         this.getBas()<journal.getHaut()||
         journal.getBas()<this.getHaut())){
             this.briserFenetre(camelot);
+            collision=true;
         }
+        return collision;
     }
 
     private void briserFenetre(Camelot camelot) {

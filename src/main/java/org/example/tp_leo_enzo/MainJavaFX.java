@@ -177,7 +177,6 @@ public class MainJavaFX extends Application {
                         collisions(maisons,journauxLances,camelot);
                         //update tout ce qui peut avoir devant la caméra
                         updateTout(context, gauche, droite, sauter, deltaTemps, camera, camelot);
-                        collisions(maisons,journauxLances,camelot);
                     }
                 } else if (niveau1) {
                     niveau1 = false;
@@ -393,13 +392,28 @@ public class MainJavaFX extends Application {
             }
         }
     }
+
     public void collisions(ArrayList<Maison> maisons, ArrayList<Journaux> journauxLances, Camelot camelot){
-            for (int i = 0; i < journauxLances.size(); i++) {
-                for (int j = 0; j < maisons.size(); j++) {
-                    maisons.get(j).verifierCollisions(journauxLances.get(i),camelot);
+
+        //boucle for détecter la collision
+        for (int i = 0; i < journauxLances.size(); i++) {
+
+            Journaux journal = journauxLances.get(i);
+            boolean collision = false;
+            //boucle for pour vérifier la collision avec les objets de chaque maison
+            for (Maison maison : maisons) {
+                //boucle if qui signale la collision
+                if (maison.verifierCollisions(journal, camelot)) {
+                    collision = true;
                 }
             }
+            //boucle if qui recoit l'information qu'il y a une collision et enlève le journal des airs en l'enlevant du Arraylist
+            if (collision) {
+                journauxLances.remove(i);
+                i--;
+            }
         }
+    }
 }
 
 
