@@ -13,33 +13,35 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
-import org.example.tp_leo_enzo.maison.BoiteAuxLettres;
-import org.example.tp_leo_enzo.maison.Fenetre;
-import org.example.tp_leo_enzo.maison.Mur;
-import org.example.tp_leo_enzo.maison.Maison;
+import org.example.tp_leo_enzo.maison.*;
 
 import java.util.Random;
 import java.util.ArrayList;
+
+import static org.example.tp_leo_enzo.UtilitairesDessins.dessinerVecteurForce;
 
 public class MainJavaFX extends Application {
     public static final double WIDTH = 900, HEIGHT = 580;
     private int debug = 0;
     private boolean niveau1 = false;
     private boolean prochainNiveau = false;
-    private boolean gameOver=false;
+    private boolean gameOver = false;
     boolean changerMasse = true;
     private double conteurTemps;
-    private ArrayList<Journaux> journauxLances = new ArrayList<>();
-    private ArrayList<Maison> maisons = new ArrayList<>();
+    private final ArrayList<Journaux> journauxLances = new ArrayList<>();
+    private final ArrayList<Maison> maisons = new ArrayList<>();
     private long dernierTir = 0;
-    private ArrayList<Integer> adresseMaison = new ArrayList<>();
+    private final ArrayList<Integer> adresseMaison = new ArrayList<>();
+    private final ArrayList<Particules> listeParticules = new ArrayList<>();
+    private int niveauAvant = 0;
+    private boolean dessinerballes = true;
 
     public static void main(String[] args) {
         launch(args);
     }
 
     @Override
-    public void start(Stage primaryStage) throws Exception {
+    public void start(Stage primaryStage) {
 
         var camera = new Camera();
         var root = new Pane();
@@ -58,7 +60,7 @@ public class MainJavaFX extends Application {
 
 
         //création du camelot
-        Camelot camelot = new Camelot(adresseMaison);
+        Camelot camelot = new Camelot();
 
         //création d'une interface
         InterfaceDebutNiveau interface1 = new InterfaceDebutNiveau();
@@ -77,32 +79,34 @@ public class MainJavaFX extends Application {
                 conteurTemps += deltaTemps;
                 // Vérifier plus de journaux et aucun sur l'écran pour afficher la rupture de stocks
                 if (camelot.getJournaux() == 0 && journauxLances.isEmpty()) {
-                    if (!gameOver){
-                        conteurTemps=0;
-                        gameOver=true;
+                    if (!gameOver) {
+                        conteurTemps = 0;
+                        gameOver = true;
                     }
                     interface1.interfaceGameOver(context, camelot, WIDTH, HEIGHT);
                     interface1.setNiveau(1);
                     if (conteurTemps > 3) {
                         camelot.ajouter24Journaux();
                         conteurTemps = 0;
-                        gameOver=false;
+                        gameOver = false;
                     }
 
-                } else if (conteurTemps < 3) {
-                        adresseMaison.clear();
-                        maisons.clear();
-                        creationMaisons();
-                        camelot.setPos(new Point2D(180, 580 - camelot.taille.getY()));
-                        camera.setPositionCamera(new Point2D(0, 0));
-                        mur.resetMur();
+                }//boucle else if qui reset les objets du niveau
+                else if (conteurTemps < 3) {
+                    adresseMaison.clear();
+                    maisons.clear();
+                    creationMaisons();
+                    camelot.setPos(new Point2D(180, 580 - camelot.taille.getY()));
+                    camera.setPositionCamera(new Point2D(0, 0));
+                    mur.resetMur();
 
                     interface1.interfaceDeNiveau(context, WIDTH, HEIGHT, prochainNiveau);
+
                     prochainNiveau = false;
                     niveau1 = false;
-                    System.out.println(conteurTemps);
 
-                } else if (maisons.isEmpty() && !niveau1 && !prochainNiveau) {
+                }//boucle else if qui génère le niveau
+                else if (maisons.isEmpty() && !niveau1 && !prochainNiveau) {
                     niveau1 = true;
                     camelot.ajouter12Journaux();
                 } else if (!niveau1 && (conteurTemps > 3 && (!journauxLances.isEmpty() || camelot.getJournaux() > 0))) { //boucle if qui permet d'afficher l'interface du niveau 1 jusqu'à temps qu'on le réussisse
@@ -144,15 +148,12 @@ public class MainJavaFX extends Application {
                             sauter = Input.isKeyPressed(KeyCode.UP);
                         }
 
-                        if (!maisons.isEmpty() && maisons.get(0).getX() + 1300 < camera.getPositionCamera().getX()) {
-                            maisons.remove(0);
+                        if (!maisons.isEmpty() && maisons.getFirst().getX() + 1300 < camera.getPositionCamera().getX()) {
+                            maisons.removeFirst();
                         }
-                        for (int i = 0; i < maisons.size(); i++) {
-                            maisons.get(i).draw(context, camera);
+                        for (Maison maison : maisons) {
+                            maison.draw(context, camera);
                         }
-
-                        //boucle if pour passer le niveau une fois que le camelot a parcouru toutes les maisons
-
 
                         //lancer journaux
                         if (camelot.getJournaux() > 0) {
@@ -171,15 +172,19 @@ public class MainJavaFX extends Application {
                         camelot.changerImg(deltaTemps);
 
                         //boucle for pour dessiner les journaux dans les airs
-                        for (int i = 0; i < journauxLances.size(); i++) {
-                            journauxLances.get(i).draw(context, camera);
+                        for (Journaux journauxLance : journauxLances) {
+                            journauxLance.draw(context, camera);
                         }
-                        collisions(maisons,journauxLances,camelot);
+                        //méthode pour les collisions
+                        collisions(maisons, journauxLances, camelot);
+                        //méthode pour les particules chargées
+                        particules(interface1, context, camera);
+
                         //update tout ce qui peut avoir devant la caméra
-                        updateTout(context, gauche, droite, sauter, deltaTemps, camera, camelot);
-                        collisions(maisons,journauxLances,camelot);
+                        updateTout(gauche, droite, sauter, deltaTemps, camera, camelot);
                     }
-                } else if (niveau1) {
+                }//boucle else if qui permet de passer de niveau
+                else if (niveau1) {
                     niveau1 = false;
                     prochainNiveau = true;
                     conteurTemps = 0;
@@ -195,7 +200,7 @@ public class MainJavaFX extends Application {
     }
     //Méthodes
 
-    public void updateTout(GraphicsContext context, boolean gauche, boolean droite, boolean sauter, double deltaTemps, Camera camera, Camelot camelot) {
+    public void updateTout( boolean gauche, boolean droite, boolean sauter, double deltaTemps, Camera camera, Camelot camelot) {
         camelot.updatePhysique(gauche, droite, sauter, deltaTemps);
 
         // met à jour tous les journaux qui sont lancés
@@ -272,12 +277,13 @@ public class MainJavaFX extends Application {
         journauxLances.add(journal);
         camelot.lancerJournal();
         dernierTir = maintenant; // on enregistre le tir
-        collision();
+
     }
 
     public double masse() {
         Random random = new Random();
         double masseJournauxNiveau = 1;
+        //boucle if pour changer la masse des journaux à chaque niveau
         if (changerMasse) {
             masseJournauxNiveau = random.nextDouble(1, 2);
             changerMasse = false;
@@ -286,41 +292,53 @@ public class MainJavaFX extends Application {
     }
 
     public void modeDebogage(double posX, GraphicsContext context, Camera camera) {
-        if (debug == 1) {
+        //boucle switch pour garder les modes activés
+        switch (debug) {
+            //mode des hits box
+            case 1:
+                context.setFill(Color.YELLOW);
+                context.fillRect(posX, 0, 4, HEIGHT);
 
-            context.setFill(Color.YELLOW);
-            context.fillRect(posX, 0, 4, HEIGHT);
-            if (debug != 1) return; // si la touche D est m'aintenue enfoncé on quitte la méthode
+                context.setStroke(Color.YELLOW);
+                context.setLineWidth(2);
 
-            context.setStroke(Color.YELLOW);
-            context.setLineWidth(2);
+                // boucle for pour prendre les boites aux lettres et fenêtres de chaque maison
+                for (Maison maison : maisons) {
 
-            // boucle for pour prendre les boites aux lettres et fenêtres de chaque maison
-            for (Maison maison : maisons) {
+                    // Boite aux lettres
+                    BoiteAuxLettres boiteStroke = maison.getBoiteAuxLettres();
+                    Point2D posBStroke = camera.coordoEcran(new Point2D(boiteStroke.getGauche(), boiteStroke.getHaut()));
+                    context.strokeRect(posBStroke.getX(), posBStroke.getY(), 81, 76);
 
-                // Boite aux lettres
-                BoiteAuxLettres boiteStroke = maison.getBoiteAuxLettres();
-                Point2D posBStroke = camera.coordoEcran(new Point2D(boiteStroke.getGauche(), boiteStroke.getHaut()));
-                context.strokeRect(posBStroke.getX(), posBStroke.getY(),81, 76);
+                    // boucle for pour les fenêtres
+                    for (Fenetre f : maison.getFenetres()) {
+                        Point2D posFStroke = camera.coordoEcran(new Point2D(f.getGauche(), f.getHaut()));
+                        context.strokeRect(posFStroke.getX(), posFStroke.getY(), 159, 130);
+                    }
 
-                // boucle for pour les fenêtres
-                for (Fenetre f : maison.getFenetres()) {
-                    Point2D posFStroke = camera.coordoEcran(new Point2D(f.getGauche(), f.getHaut()));
-                    context.strokeRect(posFStroke.getX(), posFStroke.getY(), 159, 130);
                 }
 
-            }
-
-            // boucle for pour les journaux
-            for (Journaux j : journauxLances) {
-                Point2D posJ = camera.coordoEcran(new Point2D(j.getGauche(), j.getHaut()));
-                context.strokeRect(posJ.getX(), posJ.getY(),52,31);
-            }
+                // boucle for pour les journaux
+                for (Journaux j : journauxLances) {
+                    Point2D posJ = camera.coordoEcran(new Point2D(j.getGauche(), j.getHaut()));
+                    context.strokeRect(posJ.getX(), posJ.getY(), 52, 31);
+                }
+                break;
+                //mode des lignes de champs
+            case 2:
+                ligneChamp(context, camera);
+                break;
+                //mode des particules en haut et en bas
+            case 3:
+                modeBalleHautBas();
+                break;
 
         }
+
     }
 
     public void choixDebogage(KeyEvent KeyEvent, Stage stage, Camelot camelot, InterfaceDebutNiveau interface1, GraphicsContext context) {
+        //boucle switch pour choisir le debogage
         switch (KeyEvent.getCode()) {
             case D:
                 if (debug == 1) {
@@ -336,13 +354,28 @@ public class MainJavaFX extends Application {
                 camelot.viderJournaux();
                 break;
             case L:
-                boolean passerNiveau= true;
+                boolean passerNiveau = true;
                 camelot.ajouter12Journaux();
                 interface1.interfaceDeNiveau(context, WIDTH, HEIGHT, passerNiveau);
-                conteurTemps=0;
+                conteurTemps = 0;
                 break;
             case ESCAPE:
                 stage.close();
+            case I:
+                if (debug == 3) {
+                    debug = 0;
+                } else {
+                    debug = 3;
+                }
+                break;
+            case F:
+                if (debug == 2) {
+                    debug = 0;
+                } else {
+                    debug = 2;
+                }
+
+                break;
             default:
                 Input.keyPressed(KeyEvent.getCode());
                 break;
@@ -350,7 +383,7 @@ public class MainJavaFX extends Application {
     }
 
     public void interfaceDuHaut(GraphicsContext context, Camelot camelot) {
-
+        //méthode pour dessiner l'interface du haut
         context.setFill(new Color(0, 0, 0, 0.5));
         context.fillRect(0, 0, WIDTH, 50);
         context.setFill(Color.WHITE);
@@ -361,24 +394,12 @@ public class MainJavaFX extends Application {
         context.fillText(camelot.getArgent() + "", 160, 35);
         context.drawImage(new Image("icone-maison.png"), 200, 9);
         int positionXNumeroMaisonAbonne = 250;
-
+        //boucle for pour afficher les adresse qui sont abonnées
         for (int i = 0; i < adresseMaison.size(); i++) {
             context.fillText(adresseMaison.get(i) + "", positionXNumeroMaisonAbonne + 53 * i, 35);
-
         }
 
 
-    }
-
-    public void collision() {
-        boolean collison = true;
-        for (int i = 0; i < journauxLances.size(); i++) {
-            for (int j = 0; j < maisons.size(); j++) {
-                //boucle if pour verifier si le journal est à gauche de la boite aux lettres
-            }
-
-
-        }
     }
 
     public void creationMaisons() {
@@ -386,20 +407,124 @@ public class MainJavaFX extends Application {
         //boucle for pour générer les adresse des maisons
         int addMaison1 = rnd.nextInt(100, 951);
         for (int i = 0; i < 12; i++) {
-            maisons.add(new Maison(i, HEIGHT, WIDTH, addMaison1 + i * 2));
+            maisons.add(new Maison(i, HEIGHT, addMaison1 + i * 2));
             //boucle if pour mettre dans le ArrayList d'adresse de maisons abonnées les maisons abonnées
             if (maisons.get(i).isAbonne()) {
                 adresseMaison.add(maisons.get(i).getAdresse());
             }
         }
     }
-    public void collisions(ArrayList<Maison> maisons, ArrayList<Journaux> journauxLances, Camelot camelot){
-            for (int i = 0; i < journauxLances.size(); i++) {
-                for (int j = 0; j < maisons.size(); j++) {
-                    maisons.get(j).verifierCollisions(journauxLances.get(i),camelot);
+
+    public void collisions(ArrayList<Maison> maisons, ArrayList<Journaux> journauxLances, Camelot camelot) {
+
+        //boucle for détecter la collision
+        for (int i = 0; i < journauxLances.size(); i++) {
+
+            Journaux journal = journauxLances.get(i);
+            boolean collision = false;
+            //boucle for pour vérifier la collision avec les objets de chaque maison
+            for (Maison maison : maisons) {
+                //boucle if qui signale la collision
+                if (maison.verifierCollisions(journal, camelot)) {
+                    collision = true;
                 }
             }
+            //boucle if qui recoit l'information qu'il y a une collision et enlève le journal des airs en l'enlevant du Arraylist
+            if (collision) {
+                journauxLances.remove(i);
+                i--;
+            }
         }
+    }
+
+    public void particules(InterfaceDebutNiveau interface1, GraphicsContext context, Camera camera) {
+
+        // Si on change de niveau on régénère les particules
+        if (interface1.getNiveau() > niveauAvant) {
+            niveauAvant = interface1.getNiveau();
+            listeParticules.clear();
+
+            int nbParticules = Math.min((niveauAvant - 1) * 30, 400);
+            Random rnd = new Random();
+            //boucles for pour créer le bon nombre de particules par niveau
+            for (int j = 0; j < nbParticules; j++) {
+                double teinte = Math.random() * 360;
+                Color couleur = Color.hsb(teinte, 1, 1);
+
+                double posXParticule = rnd.nextInt(1300, 16900);
+                double posYParticule = rnd.nextInt(50, 580);
+
+                listeParticules.add(new Particules(new Point2D(posXParticule, posYParticule), couleur));
+            }
+        }
+        updateAccelerationJournaux();
+        // boucle for pour dessiner les particules
+        for (Particules p : listeParticules) {
+            p.draw(context, camera);
+        }
+
+
+    }
+
+    public Point2D champElectrique(Point2D point) {
+        Point2D champTotal = new Point2D(0, 0);
+         //boucle for qui additionne tous les vecteurs de forces en 1 points
+        for (Particules particule : listeParticules) {
+            champTotal = champTotal.add(particule.calculerChampAuPoint(point));
+
+        }
+        return champTotal;
+
+    }
+
+    public void updateAccelerationJournaux() {
+        //boucle for qui calcul le champ electrique sur tous les journaux qui sont dans les airs
+        for (Journaux journal : journauxLances) {
+            journal.setAcceleration(new Point2D(0, 1500));
+
+            Point2D centreJournal = journal.getCentre();
+            Point2D forceElectrique = champElectrique(centreJournal).multiply(900);
+            Point2D accelerationChamp = forceElectrique.multiply(1 / journal.getMasse());
+            journal.setAcceleration(journal.getAcceleration().add(accelerationChamp));
+        }
+    }
+
+    public void ligneChamp(GraphicsContext context, Camera camera) {
+        Point2D positionLigneChamp;
+        //création de la grille pour dessiner les lignes de champs
+        //boucle for pour bouger sur la grille en x
+        for (int i = 0; i < 16900 / 50; i++) {
+            //boucle for pour bouger sur la grille en y
+            for (int j = 0; j < HEIGHT / 50; j++) {
+                positionLigneChamp = new Point2D(50 * i, 50 * j);
+                Point2D vecteurChamp = champElectrique(positionLigneChamp);
+                dessinerVecteurForce(camera.coordoEcran(positionLigneChamp), vecteurChamp, context);
+            }
+        }
+
+
+    }
+
+    public void modeBalleHautBas() {
+        //boucle if pour activer le mode des charges en haut et bas une seul fois
+        if (dessinerballes) {
+            listeParticules.clear();
+            //boucle for mettre des particules en haut et en bas
+            for (int i = 0; i < 16900 / 50; i++) {
+                double teinte = Math.random() * 360;
+                Color couleur = Color.hsb(teinte, 1, 1);
+                Particules pHaut = new Particules(new Point2D(50 * i, 10), couleur);
+                listeParticules.add(pHaut);
+                couleur = Color.hsb(teinte, 1, 1);
+                Particules pBas = new Particules(new Point2D(50 * i, HEIGHT - 30), couleur);
+                listeParticules.add(pBas);
+            }
+            dessinerballes = false;
+        }
+
+    }
+
+
 }
 
 

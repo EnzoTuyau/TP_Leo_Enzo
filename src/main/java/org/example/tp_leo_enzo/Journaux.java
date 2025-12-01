@@ -6,30 +6,11 @@ import javafx.scene.image.Image;
 
 public class Journaux extends ObjetDuJeu {
 
-    private double masse;
-
-    public Point2D getVelocite() {
-        return velocite;
-    }
+    private final double masse;
 
 
-
-    public void setPos(Point2D pos) {
-        this.pos = pos;
-    }
-
-    public Journaux(Point2D pos, Point2D velocite, double masse) {
-        this.pos = pos;
-        this.velocite = velocite;
-        this.masse = masse;
-        acceleration = new Point2D(0, 1500);
-        taille = new Point2D(52, 31);
-    }
-
-    public void updatePhysique(double deltaTemps){
-        pos = pos.add(velocite.multiply(deltaTemps)); //X=X0+VxΔt
-        velocite = velocite.add(acceleration.multiply(deltaTemps)); //V=V0+AxΔt
-
+    public Point2D getAcceleration() {
+        return acceleration;
     }
 
 
@@ -40,6 +21,32 @@ public class Journaux extends ObjetDuJeu {
     public Point2D getPos() {
         return pos;
     }
+
+    public void setAcceleration(Point2D acceleration) {
+        this.acceleration = acceleration;
+    }
+
+    public double getMasse() {
+        return masse;
+    }
+
+    public Journaux(Point2D pos, Point2D velocite, double masse) {
+        this.pos = pos;
+        this.velocite = velocite;
+        this.masse = masse;
+        this.acceleration = new Point2D(0, 1500);
+        taille = new Point2D(52, 31);
+    }
+
+    public void updatePhysique(double deltaTemps) {
+        double max = 1500;
+        pos = pos.add(velocite.multiply(deltaTemps)); //X=X0+VxΔt
+        velocite = velocite.add(acceleration.multiply(deltaTemps)); //V=V0+AxΔt
+        if (velocite.magnitude() > max) {
+            velocite = velocite.multiply(max / velocite.magnitude());
+        }
+    }
+
 
     @Override
     protected void draw(GraphicsContext context, Camera camera) {

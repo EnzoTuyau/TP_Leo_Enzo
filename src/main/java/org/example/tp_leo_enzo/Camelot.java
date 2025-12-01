@@ -4,17 +4,13 @@ import javafx.geometry.Point2D;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 
-import java.util.ArrayList;
+
 
 public class Camelot extends ObjetDuJeu {
     private int journaux;
     private int argent;
-    private ArrayList<Integer> adresses;
     private int imgCamelot;
-//    private Point2D pos;
-//    private Point2D velocite;
-//    private Point2D acceleration;
-    private double tempsDepuisDernierChangement=0;
+    private double tempsDepuisDernierChangement = 0;
 
     public Point2D getPos() {
         return pos;
@@ -48,47 +44,51 @@ public class Camelot extends ObjetDuJeu {
         this.journaux = this.journaux + 24;
     }
 
-    public void ajouter10Journaux(){
-        this.journaux=this.journaux+10;
+    public void ajouter10Journaux() {
+        this.journaux = this.journaux + 10;
     }
 
-    public void viderJournaux(){
-        this.journaux=0;
+    public void viderJournaux() {
+        this.journaux = 0;
     }
 
     public void ajouterArgent(int argent) {
         this.argent = this.argent + argent;
     }
 
-    public void lancerJournal(){
-        this.journaux=this.journaux-1;
+    public void lancerJournal() {
+        this.journaux = this.journaux - 1;
     }
 
-    public Camelot(ArrayList<Integer> adresses) {
-        taille = new Point2D(172 ,144);
+    //constructeur
+    public Camelot() {
+        taille = new Point2D(172, 144);
         this.journaux = 24;
         this.argent = 0;
-        this.adresses = adresses;
         this.imgCamelot = 1;
-        pos = new Point2D(180, 580- taille.getY());
+        pos = new Point2D(180, 580 - taille.getY());
         velocite = new Point2D(400, 0);
         acceleration = new Point2D(0, 0);
     }
 
     public void changerImg(double deltaTemps) {
-        // Durée entre deux changements d'image (en secondes)
+        // Durée minimale entre deux changements d'image (en secondes)
         double delai = 0.15;
 
+        // On ajoute le temps écoulé depuis la dernière frame
         tempsDepuisDernierChangement += deltaTemps;
 
+        // Si suffisamment de temps est passé, on change d'image
         if (tempsDepuisDernierChangement >= delai) {
-            // alterner l'image
+
+            // Alterne entre l'image 1 et l'image 2
             if (imgCamelot == 1)
                 imgCamelot = 2;
             else
                 imgCamelot = 1;
 
-            tempsDepuisDernierChangement = 0; // reset du compteur
+            // Réinitialise le compteur pour recommencer le cycle
+            tempsDepuisDernierChangement = 0;
         }
     }
 
@@ -99,10 +99,6 @@ public class Camelot extends ObjetDuJeu {
         return new Image("camelot2.png");
     }
 
-    public void update(boolean gauche, boolean droite, boolean sauter, double deltatemps) {
-        updatePhysique(gauche, droite, sauter, deltatemps);
-    }
-
     public void updatePhysique(boolean gauche, boolean droite, boolean sauter, double deltaTemps) {
         // Empêche d'aller plus vite que +600 pixels/s ou -600 pixels/s
         velocite = new Point2D(
@@ -111,23 +107,23 @@ public class Camelot extends ObjetDuJeu {
         );
         // boucle else if pour vérifier quelles touches sont appuyées
         if (gauche) { //boucle else if ralentir le camelot sans qu'il recule
-            if (velocite.getX()>200){
+            if (velocite.getX() > 200) {
                 acceleration = new Point2D(-300, acceleration.getY());
-            }else if (velocite.getX()<=200){
+            } else if (velocite.getX() <= 200) {
                 setVelocite(new Point2D(200, 0));
             }
         } else if (velocite.getX() < 400) { //boucle else if pour réaccélérer
             acceleration = new Point2D(300, acceleration.getY());
         } else if (droite) { //boucle else if pour accélérer vers la droite
             acceleration = new Point2D(+300, acceleration.getY());
-        } else if (sauter){ //boucle else if pour sauter
+        } else if (sauter) { //boucle else if pour sauter
             velocite = new Point2D(velocite.getX(), -500);
             acceleration = new Point2D(acceleration.getX(), 1500);
-        } else if (pos.getY()>580-taille.getY()){
+        } else if (pos.getY() > 580 - taille.getY()) {
             setVelocite(new Point2D(velocite.getX(), 0));
-            acceleration= new Point2D(velocite.getX(), 0);
-            setPos(new Point2D(pos.getX(), 580-taille.getY()));
-        }else { //boucle else pour ralentir une fois qu'on ne touche plus rien
+            acceleration = new Point2D(velocite.getX(), 0);
+            setPos(new Point2D(pos.getX(), 580 - taille.getY()));
+        } else { //boucle else pour ralentir une fois qu'on ne touche plus rien
             double accelerationFrein = -300;
             acceleration = new Point2D(accelerationFrein, acceleration.getY());
         }
@@ -142,7 +138,6 @@ public class Camelot extends ObjetDuJeu {
         context.drawImage(getImgCamelot(), coordoEcran.getX(), coordoEcran.getY());
 
     }
-
 
 
 }

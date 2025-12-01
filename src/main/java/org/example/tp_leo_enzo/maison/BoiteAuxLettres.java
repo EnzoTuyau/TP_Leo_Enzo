@@ -8,34 +8,35 @@ import org.example.tp_leo_enzo.Journaux;
 import org.example.tp_leo_enzo.ObjetDuJeu;
 import org.example.tp_leo_enzo.Camelot;
 
-import java.util.ArrayList;
+
 
 public class BoiteAuxLettres extends ObjetDuJeu {
 
-    private int adresse;
+    //attributs
     private String couleurBoite = "defaut";
-    private boolean abonne;
+    private final boolean abonne;
     private boolean utilise;
-
-    public BoiteAuxLettres(Point2D position,boolean abonne){
+    //constructeur
+    public BoiteAuxLettres(Point2D position, boolean abonne) {
         pos = position;
         this.abonne = abonne;
         taille = new Point2D(52, 31);
         utilise = false;
     }
-
+    //méthode pour dessiner les boites aux lettres
     @Override
     protected void draw(GraphicsContext context, Camera camera) {
         Point2D posCam = camera.coordoEcran(pos);
-        switch(couleurBoite){
+        //boucle switch pour changer l'image s'il y a collision
+        switch (couleurBoite) {
             case "defaut":
-                context.drawImage(new Image("boite-aux-lettres.png"),posCam.getX(),posCam.getY());
+                context.drawImage(new Image("boite-aux-lettres.png"), posCam.getX(), posCam.getY());
                 break;
             case "vert":
-                context.drawImage(new Image("boite-aux-lettres-vert.png"),posCam.getX(),posCam.getY());
+                context.drawImage(new Image("boite-aux-lettres-vert.png"), posCam.getX(), posCam.getY());
                 break;
             case "rouge":
-                context.drawImage(new Image("boite-aux-lettres-rouge.png"),posCam.getX(),posCam.getY());
+                context.drawImage(new Image("boite-aux-lettres-rouge.png"), posCam.getX(), posCam.getY());
                 break;
         }
     }
@@ -47,21 +48,24 @@ public class BoiteAuxLettres extends ObjetDuJeu {
 
     @Override
     protected void updatePhysique(double deltaTemps) {
-        if (getDroite() < 0) { //boucle if pour vérifier si les objets sortent de la caméra
+        super.updatePhysique(deltaTemps);
+    }
 
-        }
-        velocite = velocite.add(acceleration.multiply(deltaTemps));
-        pos = pos.add(velocite.multiply(deltaTemps));
-    }
-    public void verifierCollisions(Journaux journal, Camelot camelot){
-        if(!(this.getDroite()<journal.getGauche()||
-                journal.getDroite()<this.getGauche()||
-                this.getBas()<journal.getHaut()||
-                journal.getBas()<this.getHaut())){
+    public boolean verifierCollisions(Journaux journal, Camelot camelot) {
+        //boucle if pour vérifier s'il y a collision
+        boolean collision = false;
+        if (!(this.getDroite() < journal.getGauche() ||
+                journal.getDroite() < this.getGauche() ||
+                this.getBas() < journal.getHaut() ||
+                journal.getBas() < this.getHaut())) {
             this.changerBoite(camelot);
+            collision = true;
         }
+        return collision;
     }
+
     public void changerBoite(Camelot camelot) {
+        //boucle if pour donner le signal qu'il y a collision et il faut changer la couleur de la boite aux lettres
         if (!utilise) {
             if (abonne) {
                 couleurBoite = "vert";
@@ -69,7 +73,7 @@ public class BoiteAuxLettres extends ObjetDuJeu {
             } else {
                 couleurBoite = "rouge";
             }
-            utilise=true;
+            utilise = true;
         }
     }
 }

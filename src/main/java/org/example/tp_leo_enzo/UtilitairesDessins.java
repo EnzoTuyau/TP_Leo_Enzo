@@ -10,7 +10,6 @@ import javafx.scene.paint.Color;
  */
 public class UtilitairesDessins {
     // Classe de méthodes static seulement, pas d'instances autorisées
-    private UtilitairesDessins() {}
 
     /**
      * Dessine le vecteur fourni à partir d'un certain point sur l'écran.
