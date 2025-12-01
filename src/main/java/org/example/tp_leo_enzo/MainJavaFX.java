@@ -13,13 +13,12 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
-import org.example.tp_leo_enzo.maison.BoiteAuxLettres;
-import org.example.tp_leo_enzo.maison.Fenetre;
-import org.example.tp_leo_enzo.maison.Mur;
-import org.example.tp_leo_enzo.maison.Maison;
+import org.example.tp_leo_enzo.maison.*;
 
 import java.util.Random;
 import java.util.ArrayList;
+
+import static java.lang.Math.min;
 
 public class MainJavaFX extends Application {
     public static final double WIDTH = 900, HEIGHT = 580;
@@ -33,6 +32,8 @@ public class MainJavaFX extends Application {
     private ArrayList<Maison> maisons = new ArrayList<>();
     private long dernierTir = 0;
     private ArrayList<Integer> adresseMaison = new ArrayList<>();
+    public ArrayList<Particules> listeParticules = new ArrayList<>();
+    int niveauAvant = 0;
 
     public static void main(String[] args) {
         launch(args);
@@ -174,7 +175,11 @@ public class MainJavaFX extends Application {
                         for (int i = 0; i < journauxLances.size(); i++) {
                             journauxLances.get(i).draw(context, camera);
                         }
+                        //méthode pour les collisions
                         collisions(maisons,journauxLances,camelot);
+                        //méthode pour les particules chargées
+                        particules(interface1, context, camera);
+
                         //update tout ce qui peut avoir devant la caméra
                         updateTout(context, gauche, droite, sauter, deltaTemps, camera, camelot);
                     }
@@ -342,6 +347,8 @@ public class MainJavaFX extends Application {
                 break;
             case ESCAPE:
                 stage.close();
+            case I:
+                break;
             default:
                 Input.keyPressed(KeyEvent.getCode());
                 break;
@@ -414,6 +421,34 @@ public class MainJavaFX extends Application {
             }
         }
     }
+
+    public void particules(InterfaceDebutNiveau interface1, GraphicsContext context, Camera camera){
+        Random rnd = new Random();
+        if (interface1.getNiveau()>niveauAvant){
+            listeParticules.clear();
+        }
+
+        if (listeParticules.isEmpty()) {
+            niveauAvant+=1;
+            int nbParticules = min((interface1.getNiveau() - 1) * 30, 400);
+            for (int i = 0; i < nbParticules; i++) {
+                //couleur particule
+                double teinte = Math.random() * 360;
+                Color couleur = Color.hsb(teinte, 1, 1);
+                //position particule
+                double posXParticule = rnd.nextInt(1300, 16900);
+                double posYParticule = rnd.nextInt(50, 580);
+                Point2D posParticule = new Point2D(posXParticule, posYParticule);
+                listeParticules.add(new Particules(posParticule, couleur));
+            }
+        }
+
+        for (int i = 0; i < listeParticules.size(); i++) {
+            listeParticules.get(i).draw(context, camera);
+        }
+    }
+
+
 }
 
 

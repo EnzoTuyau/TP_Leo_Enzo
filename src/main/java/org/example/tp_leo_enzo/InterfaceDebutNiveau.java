@@ -10,9 +10,6 @@ public class InterfaceDebutNiveau {
     private Camelot donneesCamelot;
     private int niveau=1;
     //constructeur
-
-
-
     public void interfaceDeNiveau(GraphicsContext context, double WIDTH, double HEIGHT, boolean prochainNiveau) {
         if (prochainNiveau){
             niveau++;
@@ -30,12 +27,18 @@ public class InterfaceDebutNiveau {
 
         context.fillText(txt, (WIDTH - textWidth) / 2, HEIGHT / 2);
     }
+    //getter setter
+
+    public int getNiveau() {
+        return niveau;
+    }
+
     public void setNiveau(int niveau) {
         this.niveau = niveau;
     }
 
 
-
+    //méthodes
     public void interfaceGameOver(GraphicsContext context, Camelot camelot, double WIDTH, double HEIGHT) {
         context.setFill(Color.BLACK);
         context.fillRect(0, 0, WIDTH, HEIGHT);
