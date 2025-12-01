@@ -12,17 +12,35 @@ public class Journaux extends ObjetDuJeu {
         return velocite;
     }
 
-
+    public Point2D getAcceleration(){
+        return acceleration;
+    }
 
     public void setPos(Point2D pos) {
         this.pos = pos;
+    }
+
+    public void setVelocite(Point2D velocite) {
+        this.velocite = velocite;
+    }
+
+    public Point2D getPos() {
+        return pos;
+    }
+
+    public void setAcceleration(Point2D acceleration){
+        this.acceleration=acceleration;
+    }
+
+    public double getMasse() {
+        return masse;
     }
 
     public Journaux(Point2D pos, Point2D velocite, double masse) {
         this.pos = pos;
         this.velocite = velocite;
         this.masse = masse;
-        acceleration = new Point2D(0, 1500);
+        this.acceleration = new Point2D(0, 1500);
         taille = new Point2D(52, 31);
     }
 
@@ -33,13 +51,7 @@ public class Journaux extends ObjetDuJeu {
     }
 
 
-    public void setVelocite(Point2D velocite) {
-        this.velocite = velocite;
-    }
 
-    public Point2D getPos() {
-        return pos;
-    }
 
     @Override
     protected void draw(GraphicsContext context, Camera camera) {

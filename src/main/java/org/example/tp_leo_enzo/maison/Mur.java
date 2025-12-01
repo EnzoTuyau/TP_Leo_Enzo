@@ -8,11 +8,13 @@ public class Mur {
     ArrayList<ArrayList<Point2D>> coordBriques;
     final int w = 192;
     final int h = 96;
-    public Mur(){
+
+    public Mur() {
         creerMur();
     }
-    public void updatePhysics(Point2D coordsCam){
-        if(coordBriques.getFirst().getFirst().getX()+w<coordsCam.getX()){
+
+    public void updatePhysics(Point2D coordsCam) {
+        if (coordBriques.getFirst().getFirst().getX() + w < coordsCam.getX()) {
 
             enleverColonne();
             ajouterColonne();
@@ -20,13 +22,15 @@ public class Mur {
 
 
     }
-    private void enleverColonne(){
+
+    private void enleverColonne() {
         coordBriques.removeFirst();
     }
-    private void ajouterColonne(){
+
+    private void ajouterColonne() {
         coordBriques.add(new ArrayList<>());
         for (int i = 0; i < 7; i++) {
-            coordBriques.getLast().add(new Point2D(coordBriques.get(coordBriques.size()-2).get(0).getX()+w,i*h));
+            coordBriques.getLast().add(new Point2D(coordBriques.get(coordBriques.size() - 2).get(0).getX() + w, i * h));
         }
 
     }
@@ -39,12 +43,12 @@ public class Mur {
         creerMur();
     }
 
-    public void creerMur(){
+    public void creerMur() {
         coordBriques = new ArrayList<>();
         for (int i = 0; i < 6; i++) {
             coordBriques.add(new ArrayList<>());
             for (int j = 0; j < 7; j++) {
-                coordBriques.get(i).add(new Point2D(i*w,j*h));
+                coordBriques.get(i).add(new Point2D(i * w, j * h));
             }
         }
     }

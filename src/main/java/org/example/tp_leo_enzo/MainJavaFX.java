@@ -19,6 +19,7 @@ import java.util.Random;
 import java.util.ArrayList;
 
 import static java.lang.Math.min;
+import static org.example.tp_leo_enzo.UtilitairesDessins.dessinerVecteurForce;
 
 public class MainJavaFX extends Application {
     public static final double WIDTH = 900, HEIGHT = 580;
@@ -32,8 +33,9 @@ public class MainJavaFX extends Application {
     private ArrayList<Maison> maisons = new ArrayList<>();
     private long dernierTir = 0;
     private ArrayList<Integer> adresseMaison = new ArrayList<>();
-    public ArrayList<Particules> listeParticules = new ArrayList<>();
-    int niveauAvant = 0;
+    private ArrayList<Particules> listeParticules = new ArrayList<>();
+    private int niveauAvant = 0;
+    private boolean dessinerballes= true;
 
     public static void main(String[] args) {
         launch(args);
@@ -99,9 +101,9 @@ public class MainJavaFX extends Application {
                         mur.resetMur();
 
                     interface1.interfaceDeNiveau(context, WIDTH, HEIGHT, prochainNiveau);
+
                     prochainNiveau = false;
                     niveau1 = false;
-                    System.out.println(conteurTemps);
 
                 } else if (maisons.isEmpty() && !niveau1 && !prochainNiveau) {
                     niveau1 = true;
@@ -178,7 +180,7 @@ public class MainJavaFX extends Application {
                         //méthode pour les collisions
                         collisions(maisons,journauxLances,camelot);
                         //méthode pour les particules chargées
-                        particules(interface1, context, camera);
+                        particules(interface1, context, camera, journauxLances, camelot);
 
                         //update tout ce qui peut avoir devant la caméra
                         updateTout(context, gauche, droite, sauter, deltaTemps, camera, camelot);
@@ -186,6 +188,8 @@ public class MainJavaFX extends Application {
                 } else if (niveau1) {
                     niveau1 = false;
                     prochainNiveau = true;
+
+
                     conteurTemps = 0;
                 }
             }
@@ -290,38 +294,45 @@ public class MainJavaFX extends Application {
     }
 
     public void modeDebogage(double posX, GraphicsContext context, Camera camera) {
-        if (debug == 1) {
+        switch (debug){
+            case 1:
+                context.setFill(Color.YELLOW);
+                context.fillRect(posX, 0, 4, HEIGHT);
 
-            context.setFill(Color.YELLOW);
-            context.fillRect(posX, 0, 4, HEIGHT);
-            if (debug != 1) return; // si la touche D est m'aintenue enfoncé on quitte la méthode
+                context.setStroke(Color.YELLOW);
+                context.setLineWidth(2);
 
-            context.setStroke(Color.YELLOW);
-            context.setLineWidth(2);
+                // boucle for pour prendre les boites aux lettres et fenêtres de chaque maison
+                for (Maison maison : maisons) {
 
-            // boucle for pour prendre les boites aux lettres et fenêtres de chaque maison
-            for (Maison maison : maisons) {
+                    // Boite aux lettres
+                    BoiteAuxLettres boiteStroke = maison.getBoiteAuxLettres();
+                    Point2D posBStroke = camera.coordoEcran(new Point2D(boiteStroke.getGauche(), boiteStroke.getHaut()));
+                    context.strokeRect(posBStroke.getX(), posBStroke.getY(),81, 76);
 
-                // Boite aux lettres
-                BoiteAuxLettres boiteStroke = maison.getBoiteAuxLettres();
-                Point2D posBStroke = camera.coordoEcran(new Point2D(boiteStroke.getGauche(), boiteStroke.getHaut()));
-                context.strokeRect(posBStroke.getX(), posBStroke.getY(),81, 76);
+                    // boucle for pour les fenêtres
+                    for (Fenetre f : maison.getFenetres()) {
+                        Point2D posFStroke = camera.coordoEcran(new Point2D(f.getGauche(), f.getHaut()));
+                        context.strokeRect(posFStroke.getX(), posFStroke.getY(), 159, 130);
+                    }
 
-                // boucle for pour les fenêtres
-                for (Fenetre f : maison.getFenetres()) {
-                    Point2D posFStroke = camera.coordoEcran(new Point2D(f.getGauche(), f.getHaut()));
-                    context.strokeRect(posFStroke.getX(), posFStroke.getY(), 159, 130);
                 }
 
-            }
-
-            // boucle for pour les journaux
-            for (Journaux j : journauxLances) {
-                Point2D posJ = camera.coordoEcran(new Point2D(j.getGauche(), j.getHaut()));
-                context.strokeRect(posJ.getX(), posJ.getY(),52,31);
-            }
+                // boucle for pour les journaux
+                for (Journaux j : journauxLances) {
+                    Point2D posJ = camera.coordoEcran(new Point2D(j.getGauche(), j.getHaut()));
+                    context.strokeRect(posJ.getX(), posJ.getY(),52,31);
+                }
+                break;
+            case 2:
+                ligneChamp(context, camera);
+                break;
+            case 3:
+                modeBalleHautBas();
+                break;
 
         }
+
     }
 
     public void choixDebogage(KeyEvent KeyEvent, Stage stage, Camelot camelot, InterfaceDebutNiveau interface1, GraphicsContext context) {
@@ -348,6 +359,19 @@ public class MainJavaFX extends Application {
             case ESCAPE:
                 stage.close();
             case I:
+                if (debug == 3) {
+                    debug = 0;
+                } else {
+                    debug = 3;
+                }
+                break;
+            case F:
+                if (debug == 2) {
+                    debug = 0;
+                } else {
+                    debug = 2;
+                }
+
                 break;
             default:
                 Input.keyPressed(KeyEvent.getCode());
@@ -422,31 +446,89 @@ public class MainJavaFX extends Application {
         }
     }
 
-    public void particules(InterfaceDebutNiveau interface1, GraphicsContext context, Camera camera){
-        Random rnd = new Random();
-        if (interface1.getNiveau()>niveauAvant){
-            listeParticules.clear();
-        }
+    public void particules(InterfaceDebutNiveau interface1, GraphicsContext context, Camera camera, ArrayList<Journaux> journauxLances, Camelot camelot) {
 
-        if (listeParticules.isEmpty()) {
-            niveauAvant+=1;
-            int nbParticules = min((interface1.getNiveau() - 1) * 30, 400);
-            for (int i = 0; i < nbParticules; i++) {
-                //couleur particule
+        // Si on change de niveau on régénère les particules
+        if (interface1.getNiveau() > niveauAvant) {
+            niveauAvant = interface1.getNiveau();
+            listeParticules.clear();
+
+            int nbParticules = Math.min((niveauAvant - 1) * 30, 400);
+            Random rnd = new Random();
+
+            for (int j = 0; j < nbParticules; j++) {
                 double teinte = Math.random() * 360;
                 Color couleur = Color.hsb(teinte, 1, 1);
-                //position particule
+
                 double posXParticule = rnd.nextInt(1300, 16900);
                 double posYParticule = rnd.nextInt(50, 580);
-                Point2D posParticule = new Point2D(posXParticule, posYParticule);
-                listeParticules.add(new Particules(posParticule, couleur));
+
+                listeParticules.add(new Particules(new Point2D(posXParticule, posYParticule), couleur));
+            }
+        }
+        updateAccelerationJournaux();
+        // DESSIN DES PARTICULES
+        for (Particules p : listeParticules) {
+            p.draw(context, camera);
+        }
+
+
+    }
+
+    public Point2D champElectrique(Point2D point) {
+            Point2D champTotal = new Point2D(0, 0);
+            for ( Particules particule : listeParticules) {
+                champTotal = champTotal.add(particule.calculerChampAuPoint(point));
+
+            }
+            return champTotal;
+
+    }
+
+    public void updateAccelerationJournaux() {
+        for (Journaux journal : journauxLances) {
+            journal.setAcceleration(new Point2D(0, 1500));
+
+            Point2D centreJournal= journal.getCentre();
+            Point2D forceElectrique = champElectrique(centreJournal).multiply(900);
+            Point2D accelerationChamp = forceElectrique.multiply(1 / journal.getMasse());
+            journal.setAcceleration(journal.getAcceleration().add(accelerationChamp));
+        }
+    }
+
+    public void ligneChamp(GraphicsContext context, Camera camera){
+        Point2D positionLigneChamp;
+        for (int i = 0; i < 16900/50; i++) {
+            for (int j = 0; j < HEIGHT/50; j++) {
+                positionLigneChamp= new Point2D(50*i, 50*j);
+                Point2D vecteurChamp= champElectrique(positionLigneChamp);
+                dessinerVecteurForce(camera.coordoEcran(positionLigneChamp),vecteurChamp,context);
             }
         }
 
-        for (int i = 0; i < listeParticules.size(); i++) {
-            listeParticules.get(i).draw(context, camera);
-        }
+
     }
+
+    public void modeBalleHautBas(){
+
+
+        if (dessinerballes){
+            listeParticules.clear();
+            for (int i = 0; i < 16900/50; i++) {
+                double teinte = Math.random() * 360;
+                Color couleur = Color.hsb(teinte, 1, 1);
+                Particules pHaut = new Particules(new Point2D(50*i,10), couleur);
+                listeParticules.add(pHaut);
+                couleur=Color.hsb(teinte, 1, 1);
+                Particules pBas = new Particules(new Point2D(50*i,HEIGHT-30), couleur);
+                listeParticules.add(pBas);
+            }
+            dessinerballes=false;
+        }
+
+    }
+
+
 
 
 }
