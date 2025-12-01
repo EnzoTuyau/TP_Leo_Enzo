@@ -4,11 +4,11 @@ import javafx.geometry.Point2D;
 
 public class Camera {
     private Point2D positionCamera;
-    private Point2D velocite;
+    private final Point2D velocite;
 
-    public Camera(){
-        positionCamera = new Point2D(0,0);
-        velocite = new Point2D(10,0);
+    public Camera() {
+        positionCamera = new Point2D(0, 0);
+        velocite = new Point2D(10, 0);
     }
 
     public Point2D coordoEcran(Point2D positionMonde) {

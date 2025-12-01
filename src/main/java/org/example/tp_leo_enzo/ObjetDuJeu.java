@@ -4,10 +4,10 @@ import javafx.geometry.Point2D;
 import javafx.scene.canvas.GraphicsContext;
 
 public abstract class ObjetDuJeu {
-    protected Point2D pos= new Point2D(0,0);
+    protected Point2D pos = new Point2D(0, 0);
     protected Point2D velocite;
     protected Point2D acceleration;
-    protected Point2D taille= new Point2D(0,0);
+    protected Point2D taille = new Point2D(0, 0);
 
 
     protected abstract void draw(GraphicsContext context, Camera camera);
@@ -17,9 +17,6 @@ public abstract class ObjetDuJeu {
     }
 
     protected void updatePhysique(double deltaTemps) {
-        if (getDroite() < 0) { //boucle if pour vérifier si les objets sortent de la caméra
-
-        }
         velocite = velocite.add(acceleration.multiply(deltaTemps));
         pos = pos.add(velocite.multiply(deltaTemps));
 
